@@ -39,17 +39,29 @@ Application Tracker
 ## Project Structure
 
 job-application-agent/
+
 ├── README.md
+
 ├── docs/
+
 │   └── workflow_design.md
+
 ├── data/
+
 │   ├── sample_jd.txt
+
 │   └── candidate_profile.json
+
 ├── outputs/
+
 ├── src/
+
 ├── tests/
+
 ├── requirements.txt
+
 ├── Dockerfile
+
 └── docker-compose.yml
 
 ## Current Status
