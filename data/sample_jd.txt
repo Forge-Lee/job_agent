@@ -1,0 +1,31 @@
+AI Project Intern
+
+Company: ExampleTech
+
+About the Role:
+ExampleTech is looking for an AI Project Intern to support the development of intelligent document and video analysis tools for business operations. The intern will work with machine learning engineers and product teams to prototype AI-powered workflows.
+
+Responsibilities:
+- Analyze business documents and extract structured information using machine learning techniques.
+- Develop computer vision or OCR-based prototypes for document understanding.
+- Support video analysis tasks such as object detection, tracking, or event recognition.
+- Collaborate with engineering and product teams to evaluate model performance.
+- Document project progress, limitations, and future improvement opportunities.
+
+Required Qualifications:
+- Currently pursuing or recently completed a degree in Computer Science, Electrical Engineering, Data Science, or a related field.
+- Experience with Python and machine learning libraries.
+- Familiarity with computer vision, image processing, or deep learning.
+- Ability to work with unstructured data and design preprocessing pipelines.
+- Strong communication and documentation skills.
+
+Preferred Qualifications:
+- Experience with OCR, document AI, or multimodal AI systems.
+- Experience with PyTorch, OpenCV, or similar tools.
+- Familiarity with LLM-based workflows or AI agents.
+- Experience building end-to-end prototypes.
+
+Internship Details:
+- Duration: 10 to 12 weeks
+- Location: Remote or hybrid
+- Start date: Summer 2026

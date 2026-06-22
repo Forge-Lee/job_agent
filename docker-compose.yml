@@ -1,0 +1,9 @@
+services:
+  job-agent:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    command: python -m src.main

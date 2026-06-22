@@ -1,0 +1,95 @@
+{
+  "name": "Forge Lee",
+  "education": [
+    {
+      "degree": "M.S. in Electrical and Computer Engineering",
+      "school": "Placeholder",
+      "focus": [
+        "Machine Learning",
+        "Computer Vision",
+        "Intelligent Systems"
+      ]
+    },
+    {
+      "degree": "B.S. in Electrical Engineering",
+      "school": "Placeholder"
+    }
+  ],
+  "skills": {
+    "programming": [
+      "Python",
+      "C++",
+      "Git"
+    ],
+    "machine_learning": [
+      "PyTorch",
+      "Machine Learning",
+      "Deep Learning",
+      "Computer Vision",
+      "Image Processing",
+      "Time-series Prediction"
+    ],
+    "agent_ai": [
+      "LLM Agents",
+      "RAG",
+      "Prompt Engineering",
+      "Workflow Automation"
+    ],
+    "tools": [
+      "Docker",
+      "Linux",
+      "OpenCV",
+      "Jupyter",
+      "LaTeX"
+    ]
+  },
+  "projects": [
+    {
+      "name": "RUL Prediction Paper Reproduction",
+      "type": "Course Project",
+      "keywords": [
+        "LSTM",
+        "GRU",
+        "BiGRU",
+        "time-series prediction",
+        "data preprocessing",
+        "model comparison"
+      ],
+      "description": "Reproduced a remaining useful life prediction pipeline using NASA C-MAPSS data and provided a preprocessing workflow for model comparison."
+    },
+    {
+      "name": "Image Restoration and Segmentation Evaluation",
+      "type": "Course Project",
+      "keywords": [
+        "computer vision",
+        "image restoration",
+        "image processing",
+        "Wiener filter",
+        "TV regularization",
+        "ResNet",
+        "segmentation evaluation"
+      ],
+      "description": "Compared mathematical and learning-based image restoration methods and evaluated downstream segmentation performance."
+    },
+    {
+      "name": "OpenROAD Physical Design Flow Optimization",
+      "type": "Course Project",
+      "keywords": [
+        "workflow automation",
+        "debugging",
+        "EDA",
+        "parameter sweep",
+        "report analysis"
+      ],
+      "description": "Ran and debugged an OpenROAD backend design flow, performed parameter sweeps, and analyzed timing and area reports."
+    }
+  ],
+  "target_roles": [
+    "AI Intern",
+    "Machine Learning Intern",
+    "Computer Vision Intern",
+    "Applied AI Intern",
+    "LLM Agent Intern"
+  ],
+  "preferred_positioning": "Applied AI and computer vision candidate with experience in ML workflows, preprocessing pipelines, and agentic automation."
+}
