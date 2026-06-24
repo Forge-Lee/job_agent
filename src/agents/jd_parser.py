@@ -122,7 +122,7 @@ class JDParser:
     def parse(self, text: str) -> ParsedJD:
         self.lines = get_non_empty_lines(text)
         self.role = self.lines[0] if self.lines else "not specified"
-        self.comp_name = extract_line_after_prefix(text)
+        self.comp_name = extract_line_after_prefix(self.lines)
         self.responsibility = extract_section_items(
             self.lines, 
             "Responsibilities:", 
