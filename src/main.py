@@ -3,6 +3,7 @@ import json
 
 from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
+from src.agents.material_generator import MaterialGenerator
 
 def load_text(path: str) -> str:
     return Path(path).read_text(encoding="utf-8")
@@ -99,6 +100,22 @@ def main() -> None:
     print("Positioning Summary")
     print("-" * 45)
     print(match_result.positioning_summary)
+
+    # 4. Generate Matching Report
+    generator = MaterialGenerator()
+
+    match_report = generator.generate_match_report(
+        parsed_jd=parsed_jd,
+        match_result=match_result,
+        candidate_profile=candidate_profile
+    )
+
+    Path("outputs/match_report.md").write_text(
+        match_report,
+        encoding="utf-8"
+    )
+
+    print("Saved match report to outputs/match_report.md")
 
     print()
     print("End-to-end test completed successfully.")
