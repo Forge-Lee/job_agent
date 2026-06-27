@@ -1,0 +1,27 @@
+You are helping generate a concise LinkedIn message for a job application or recruiter outreach.
+
+Use only the information provided below. Do not invent experience, companies, projects, publications, or skills that are not supported by the candidate profile or match result.
+
+Job Information:
+{job_info}
+
+Candidate Profile:
+{candidate_profile}
+
+Match Result:
+{match_result}
+
+Write a short professional LinkedIn message.
+
+Requirements:
+- Keep it concise, around 80-120 words.
+- Use a natural and polite tone.
+- Mention the role and company.
+- Briefly highlight the strongest matching background.
+- Mention 1 relevant project only if it fits naturally.
+- Mention understand the other side may not be the direct recruiter for this specific role
+- Mention hope to be guided to the appropriate recruiting contact or hiring team.
+- Do not sound overly formal like a cover letter.
+- Do not include placeholders such as [Name], [Date], or [Recruiter Name].
+- Do not fabricate experience.
+- End with a simple request to connect or discuss the opportunity.

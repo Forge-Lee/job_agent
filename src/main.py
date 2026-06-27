@@ -138,12 +138,26 @@ def main() -> None:
             candidate_profile=candidate_profile,
         )
 
-        Path("outputs/cover_letter_llm_test.md").write_text(
+        Path("outputs/cover_letter_llm_multi_trial.md").write_text(
             cover_letter,
             encoding="utf-8"
         )
 
         print("Saved cover letter to outputs/cover_letter.md")
+
+        if llm_client != MockLLMClient():
+            linkedin_message = generator.generate_linkedin_message(
+                parsed_jd=parsed_jd,
+                match_result=match_result,
+                candidate_profile=candidate_profile,
+            )
+
+            Path("outputs/linkedin_message_multi_trial.md").write_text(
+                linkedin_message,
+                encoding="utf-8"
+            )
+
+            print("Saved LinkedIn message to outputs/linkedin_message.md")
 
     print()
     print("End-to-end test completed successfully.")
