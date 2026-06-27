@@ -2,16 +2,16 @@
   "name": "Forge Lee",
   "education": [
     {
-      "degree": "M.S. in Electrical and Computer Engineering",
+      "degree": "M.S. in Placeholder",
       "school": "Placeholder",
       "focus": [
         "Machine Learning",
         "Computer Vision",
-        "Intelligent Systems"
+        "Robotics"
       ]
     },
     {
-      "degree": "B.S. in Electrical Engineering",
+      "degree": "B.S. in Placeholder",
       "school": "Placeholder"
     }
   ],
@@ -31,7 +31,8 @@
     ],
     "agent_ai": [
       "LLM Agents",
-      "RAG",
+      "RFHL",
+      "ReAct",
       "Prompt Engineering",
       "Workflow Automation"
     ],
@@ -66,22 +67,9 @@
         "image processing",
         "Wiener filter",
         "TV regularization",
-        "ResNet",
-        "segmentation evaluation"
+        "ResNet"
       ],
       "description": "Compared mathematical and learning-based image restoration methods and evaluated downstream segmentation performance."
-    },
-    {
-      "name": "OpenROAD Physical Design Flow Optimization",
-      "type": "Course Project",
-      "keywords": [
-        "workflow automation",
-        "debugging",
-        "EDA",
-        "parameter sweep",
-        "report analysis"
-      ],
-      "description": "Ran and debugged an OpenROAD backend design flow, performed parameter sweeps, and analyzed timing and area reports."
     }
   ],
   "target_roles": [

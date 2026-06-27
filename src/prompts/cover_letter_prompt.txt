@@ -1,0 +1,24 @@
+You are helping generate a tailored cover letter for a job application.
+
+Use only the information provided below. Do not invent experience, companies, projects, publications, or skills that are not supported by the candidate profile or match result.
+
+Job Information:
+{job_info}
+
+Candidate Profile:
+{candidate_profile}
+
+Match Result:
+{match_result}
+
+Write a concise professional cover letter.
+
+Requirements:
+- Use a professional but natural tone.
+- Keep it around 250-350 words.
+- Emphasize the strongest matches.
+- Mention relevant projects when appropriate.
+- Acknowledge the role naturally without overclaiming.
+- Do not include fake personal details.
+- Do not fabricate years of experience.
+- Do not mention missing skills directly unless framed positively.

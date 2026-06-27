@@ -4,6 +4,7 @@ import json
 from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
 from src.agents.material_generator import MaterialGenerator
+from src.utils.llm_client import MockLLMClient, OpenAIClient
 
 def load_text(path: str) -> str:
     return Path(path).read_text(encoding="utf-8")
@@ -24,6 +25,9 @@ def main() -> None:
 
     parsed_jd_output_path = "outputs/parsed_jd.json"
     match_result_output_path = "outputs/match_result.json"
+
+    USE_MOCK_LLM = False
+    ENABLE_LLM_GENERATION = True
 
     print("AI Job Application Assistant Agent")
     print("=" * 45)
@@ -102,7 +106,8 @@ def main() -> None:
     print(match_result.positioning_summary)
 
     # 4. Generate Matching Report
-    generator = MaterialGenerator()
+    llm_client = MockLLMClient()
+    generator = MaterialGenerator(llm_client=llm_client)
 
     match_report = generator.generate_match_report(
         parsed_jd=parsed_jd,
@@ -116,6 +121,29 @@ def main() -> None:
     )
 
     print("Saved match report to outputs/match_report.md")
+
+    if ENABLE_LLM_GENERATION:
+        if USE_MOCK_LLM:
+            llm_client = MockLLMClient()
+            print('Using MockLLMClient as api placeholder.')
+        else:
+            llm_client = OpenAIClient()
+            print('Using real LLM API as backend.')
+
+        generator = MaterialGenerator(llm_client=llm_client)
+
+        cover_letter = generator.generate_cover_letter(
+            parsed_jd=parsed_jd,
+            match_result=match_result,
+            candidate_profile=candidate_profile,
+        )
+
+        Path("outputs/cover_letter_llm_test.md").write_text(
+            cover_letter,
+            encoding="utf-8"
+        )
+
+        print("Saved cover letter to outputs/cover_letter.md")
 
     print()
     print("End-to-end test completed successfully.")

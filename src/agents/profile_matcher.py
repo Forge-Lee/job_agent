@@ -138,9 +138,17 @@ class ProfileMatcher:
             f"Relevant project experience: {', '.join(relevant_projects)}."
         )
             
+        filtering_kws = ['degree', 'currently pursuing', 'communication', 'documentation']
         if missing_required_skills:
+            
             for item in missing_required_skills:
-                gaps.append(f"Limited direct evidence for: {item}")
+                block = False
+                for kws in filtering_kws:
+                    if kws in item:
+                        block = True
+                        break
+                if not block:
+                    gaps.append(f"Limited direct evidence for: {item}")
         
         if missing_preferred_skills:
             for item in missing_preferred_skills:

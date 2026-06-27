@@ -1,3 +1,6 @@
+from pathlib import Path
+import json
+
 from src.schemas.models import ParsedJD, MatchResult
 
 def format_bullets(items: list[str]) -> str:
@@ -59,11 +62,14 @@ def format_proj(match_result: MatchResult) -> str:
     return res
 
 class MaterialGenerator:
+    def __init__(self, llm_client=None):
+        self.llm_client = llm_client
+
     def generate_match_report(
-    self,
-    parsed_jd: ParsedJD,
-    match_result: MatchResult,
-    candidate_profile: dict
+        self,
+        parsed_jd: ParsedJD,
+        match_result: MatchResult,
+        candidate_profile: dict
     ) -> str:
         section = []
 
@@ -81,3 +87,24 @@ class MaterialGenerator:
         section.append(f'## Suggested Positioning \n\n{match_result.positioning_summary}')
 
         return '\n\n'.join(section)
+
+    def generate_cover_letter(
+        self,
+        parsed_jd: ParsedJD,
+        match_result: MatchResult,
+        candidate_profile: dict,
+    ) -> str:
+        if self.llm_client is None:
+            raise ValueError("LLM client is required for cover letter generation.")
+
+        prompt_template = Path("src/prompts/cover_letter_prompt.txt").read_text(
+            encoding="utf-8"
+        )
+
+        prompt = prompt_template.format(
+            job_info=parsed_jd.model_dump_json(indent=2),
+            candidate_profile=json.dumps(candidate_profile, indent=2),
+            match_result=match_result.model_dump_json(indent=2),
+        )
+
+        return self.llm_client.generate_text(prompt)
