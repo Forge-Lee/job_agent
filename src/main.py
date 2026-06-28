@@ -5,6 +5,7 @@ from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
 from src.agents.material_generator import MaterialGenerator
 from src.utils.llm_client import MockLLMClient, OpenAIClient
+from src.tools.application_tracker import ApplicationTracker
 
 def load_text(path: str) -> str:
     return Path(path).read_text(encoding="utf-8")
@@ -26,7 +27,7 @@ def main() -> None:
     parsed_jd_output_path = "outputs/parsed_jd.json"
     match_result_output_path = "outputs/match_result.json"
 
-    USE_MOCK_LLM = False
+    USE_MOCK_LLM = True
     ENABLE_LLM_GENERATION = True
 
     print("AI Job Application Assistant Agent")
@@ -158,6 +159,29 @@ def main() -> None:
             )
 
             print("Saved LinkedIn message to outputs/linkedin_message.md")
+
+    # 5. tracker (mem) 1st ver test
+    tracker = ApplicationTracker()
+
+    record = {
+        "id": "exampletech-ai-project-intern",
+        "company": "ExampleTech",
+        "role": "AI Project Intern",
+        "status": "interested",
+        "match_score": 0.45,
+        "jd_path": "data/sample_jd.txt",
+        "match_report_path": "outputs/match_report.md",
+        "cover_letter_path": "outputs/cover_letter.md",
+        "linkedin_message_path": "outputs/linkedin_message.md",
+        "notes": [],
+        "created_at": "2026-06-27 12:00:00",
+        "updated_at": "2026-06-27 12:00:00",
+    }
+
+    tracker.add_application(record)
+    print(tracker.list_applications())
+    tracker.update_status("exampletech-ai-project-intern", "applied")
+    print(tracker.find_application("exampletech-ai-project-intern"))
 
     print()
     print("End-to-end test completed successfully.")

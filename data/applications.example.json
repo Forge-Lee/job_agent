@@ -1,0 +1,16 @@
+[
+  {
+    "id": "exampletech-ai-project-intern",
+    "company": "ExampleTech",
+    "role": "AI Project Intern",
+    "status": "applied",
+    "match_score": 0.45,
+    "jd_path": "data/sample_jd.txt",
+    "match_report_path": "outputs/match_report.md",
+    "cover_letter_path": "outputs/cover_letter.md",
+    "linkedin_message_path": "outputs/linkedin_message.md",
+    "notes": [],
+    "created_at": "2026-06-27 12:00:00",
+    "updated_at": "2026-06-27 20:00:18"
+  }
+]

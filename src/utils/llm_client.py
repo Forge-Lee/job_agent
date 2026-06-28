@@ -66,7 +66,7 @@ class OpenAIClient:
                 return content.strip() if content else ""
 
             except (InternalServerError, RateLimitError, APIConnectionError) as error:
-                wait_time = 2 ** attempt
+                wait_time = 20
 
                 if attempt == max_retries - 1:
                     raise error
