@@ -27,7 +27,7 @@ def main() -> None:
     parsed_jd_output_path = "outputs/parsed_jd.json"
     match_result_output_path = "outputs/match_result.json"
 
-    USE_MOCK_LLM = True
+    USE_MOCK_LLM = False
     ENABLE_LLM_GENERATION = True
 
     print("AI Job Application Assistant Agent")

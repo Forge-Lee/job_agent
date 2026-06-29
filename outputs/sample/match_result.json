@@ -1,0 +1,47 @@
+{
+  "match_score": 0.45,
+  "matched_required_skills": [
+    "Experience with Python and machine learning libraries.",
+    "Familiarity with computer vision, image processing, or deep learning."
+  ],
+  "missing_required_skills": [
+    "Currently pursuing or recently completed a degree in Computer Science, Electrical Engineering, Data Science, or a related field.",
+    "Ability to work with unstructured data and design preprocessing pipelines.",
+    "Strong communication and documentation skills."
+  ],
+  "matched_preferred_skills": [
+    "Experience with PyTorch, OpenCV, or similar tools."
+  ],
+  "missing_preferred_skills": [
+    "Experience with OCR, document AI, or multimodal AI systems.",
+    "Familiarity with LLM-based workflows or AI agents.",
+    "Experience building end-to-end prototypes."
+  ],
+  "matched_tools": [
+    "Python",
+    "PyTorch",
+    "OpenCV",
+    "LLM"
+  ],
+  "matched_domains": [
+    "computer vision",
+    "image processing",
+    "machine learning",
+    "deep learning"
+  ],
+  "relevant_projects": [
+    "Image Restoration and Segmentation Evaluation"
+  ],
+  "strengths": [
+    "Relevant domain background in computer vision, image processing, machine learning, deep learning.",
+    "Hands-on experience with tools such as Python, PyTorch, OpenCV, LLM.",
+    "Relevant project experience: Image Restoration and Segmentation Evaluation."
+  ],
+  "gaps": [
+    "Limited direct evidence for: Ability to work with unstructured data and design preprocessing pipelines.",
+    "Limited direct evidence for: Experience with OCR, document AI, or multimodal AI systems.",
+    "Limited direct evidence for: Familiarity with LLM-based workflows or AI agents.",
+    "Limited direct evidence for: Experience building end-to-end prototypes."
+  ],
+  "positioning_summary": "Position the candidate as an applied AI / computer vision engineer with experience in image processing, ML workflows, and structured project execution."
+}

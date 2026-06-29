@@ -1,9 +1,10 @@
 {
-  "name": "Forge Lee",
+  "name": "Demo Candidate",
+  "email": "demo@example.com",
   "education": [
     {
       "degree": "M.S. in Placeholder",
-      "school": "Placeholder",
+      "school": "Example University",
       "focus": [
         "Machine Learning",
         "Computer Vision",
@@ -12,7 +13,7 @@
     },
     {
       "degree": "B.S. in Placeholder",
-      "school": "Placeholder"
+      "school": "Example University"
     }
   ],
   "skills": {
@@ -46,7 +47,7 @@
   },
   "projects": [
     {
-      "name": "RUL Prediction Paper Reproduction",
+      "name": "Paper Reproduction",
       "type": "Course Project",
       "keywords": [
         "LSTM",
@@ -56,7 +57,7 @@
         "data preprocessing",
         "model comparison"
       ],
-      "description": "Reproduced a remaining useful life prediction pipeline using NASA C-MAPSS data and provided a preprocessing workflow for model comparison."
+      "description": "Reproduced a remaining useful life prediction pipeline and provided a preprocessing workflow for model comparison."
     },
     {
       "name": "Image Restoration and Segmentation Evaluation",

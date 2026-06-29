@@ -1,0 +1,48 @@
+{
+  "company": "ExampleTech",
+  "role": "AI Project Intern",
+  "employment_type": "internship",
+  "location": "Remote or hybrid",
+  "start_date": "Summer 2026",
+  "duration": "10 to 12 weeks",
+  "responsibilities": [
+    "Analyze business documents and extract structured information using machine learning techniques.",
+    "Develop computer vision or OCR-based prototypes for document understanding.",
+    "Support video analysis tasks such as object detection, tracking, or event recognition.",
+    "Collaborate with engineering and product teams to evaluate model performance.",
+    "Document project progress, limitations, and future improvement opportunities."
+  ],
+  "required_skills": [
+    "Currently pursuing or recently completed a degree in Computer Science, Electrical Engineering, Data Science, or a related field.",
+    "Experience with Python and machine learning libraries.",
+    "Familiarity with computer vision, image processing, or deep learning.",
+    "Ability to work with unstructured data and design preprocessing pipelines.",
+    "Strong communication and documentation skills."
+  ],
+  "preferred_skills": [
+    "Experience with OCR, document AI, or multimodal AI systems.",
+    "Experience with PyTorch, OpenCV, or similar tools.",
+    "Familiarity with LLM-based workflows or AI agents.",
+    "Experience building end-to-end prototypes."
+  ],
+  "tools": [
+    "Python",
+    "PyTorch",
+    "OpenCV",
+    "LLM"
+  ],
+  "domains": [
+    "computer vision",
+    "image processing",
+    "object detection",
+    "video analysis",
+    "tracking",
+    "document ai",
+    "ocr",
+    "machine learning",
+    "deep learning",
+    "multimodal ai",
+    "ai agent"
+  ],
+  "sponsorship": "not mentioned"
+}

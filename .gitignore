@@ -18,10 +18,12 @@ ENV/
 
 # Outputs
 outputs/*
-!outputs/.gitkeep
+!outputs/sample/
+!outputs/sample/**
 
 # Local application records
 data/applications.json
+data/candidate_profile.json
 timeline.txt
 
 # IDE
