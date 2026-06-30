@@ -85,8 +85,6 @@ job-application-agent/
 
 ## Current Status
 
-## Current Status
-
 The MVP workflow is complete. The project currently supports JD parsing, profile matching, material generation, local application tracking, CLI usage, and Docker-based execution. The next focus is improving robustness, scoring quality, and UI support.
 
 ## Planned Output
