@@ -40,6 +40,7 @@ Application Tracker
 
 ## Project Structure
 
+```
 job-application-agent/
 
 ├── README.md
@@ -119,6 +120,7 @@ job-application-agent/
 ├── .dockerignore
 
 └── docker-compose.yml
+```
 
 ## Current Status
 
