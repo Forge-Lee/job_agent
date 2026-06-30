@@ -40,9 +40,23 @@ class ApplicationTracker:
     def add_application(self, record: dict) -> None:
         if self.record is None:
             self.record = self.load_applications(self.app_tracker_path)
+
+        for index, rec in enumerate(self.record):
+            if rec.get('id') == record.get('id'):
+                self.record[index]['status'] = record['status']
+                self.record[index]['match_score'] = record['match_score']
+                self.record[index]['jd_path'] = record['jd_path']
+                self.record[index]['match_report_path'] = record['match_report_path']
+                self.record[index]['cover_letter_path'] = record['cover_letter_path']
+                self.record[index]['linkedin_message_path'] = record['linkedin_message_path']
+                self.record[index]['notes'] = record['notes']
+                self.record[index]['updated_at'] = record['updated_at']
+                self.save_applications(self.record)
+                return
+
         self.record.append(record)
-        
         self.save_applications(self.record)
+
 
     def list_applications(self) -> list[dict]:
         if self.record is None:
