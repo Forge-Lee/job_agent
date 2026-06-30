@@ -42,83 +42,44 @@ Application Tracker
 
 ```
 job-application-agent/
-
 ├── README.md
-
 ├── docs/
-
 │   └── workflow_design.md
-
 ├── data/
-
 │   ├── sample_jd.txt
-
 │   ├── applications.example.json
-
 │   └── candidate_profile.example.json
-
 ├── outputs/
-
 │   └── sample/
-
 │      ├── cover_letter.md
-
 │      ├── linkedin_message.md
-
 │      ├── match_report.md
-
 │      ├── match_result.json
-
 │      └── parsed_jd.json
-
 ├── src/
-
 │   ├── agents/
-
 │      ├── jd_parser.py
-
 │      ├── material_generator.py
-
 │      └── profile_matcher.py
-
 │   ├── prompts/
-
 │      ├── cover_letter_prompt.txt
-
 │      └── linkedin_message_prompt.txt
-
 │   ├── schemas/
-
 │      └── models.py
-
 │   ├── tools/
-
 │      ├── application_tracker.py
-
 │      └── file_loader.py
-
 │   ├── utils/
-
 │      ├── __init__.py
-
 │      └── llm_client.py
-
 │   ├── cli.py
-
 │   └── main.py
-
 ├── tests/
-
 ├── requirements.txt
-
 ├── .env.example
-
 ├── .gitignore
-
 ├── Dockerfile
-
 ├── .dockerignore
-
 └── docker-compose.yml
 ```
 
