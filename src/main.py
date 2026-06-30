@@ -1,24 +1,11 @@
 from pathlib import Path
-import json
 
 from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
 from src.agents.material_generator import MaterialGenerator
 from src.utils.llm_client import MockLLMClient, OpenAIClient
 from src.tools.application_tracker import ApplicationTracker
-
-def load_text(path: str) -> str:
-    return Path(path).read_text(encoding="utf-8")
-
-
-def load_json(path: str) -> dict:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
-
-
-def save_json(path: str, data: str) -> None:
-    output_path = Path(path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(data, encoding="utf-8")
+from src.tools.file_loader import *
 
 def main() -> None:
     jd_path = "data/sample_jd.txt"
