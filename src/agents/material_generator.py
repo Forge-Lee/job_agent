@@ -92,7 +92,7 @@ class MaterialGenerator:
         self,
         parsed_jd: ParsedJD,
         match_result: MatchResult,
-        candidate_profile: dict,
+        candidate_profile: dict
     ) -> str:
         if self.llm_client is None:
             raise ValueError("LLM client is required for cover letter generation.")
@@ -119,6 +119,27 @@ class MaterialGenerator:
             raise ValueError("LLM client is required for follow-up message generation.")
 
         prompt_template = Path("src/prompts/linkedin_message_prompt.txt").read_text(
+            encoding="utf-8"
+        )
+
+        prompt = prompt_template.format(
+            job_info=parsed_jd.model_dump_json(indent=2),
+            candidate_profile=json.dumps(candidate_profile, indent=2),
+            match_result=match_result.model_dump_json(indent=2),
+        )
+
+        return self.llm_client.generate_text(prompt)
+    
+    def generate_resume_bullets(
+        self,
+        parsed_jd: ParsedJD,
+        match_result: MatchResult,
+        candidate_profile: dict
+    ) -> str:
+        if self.llm_client is None:
+            raise ValueError("LLM client is required for recommended resume bullets generation.")
+
+        prompt_template = Path("src/prompts/resume_bullets_prompt.txt").read_text(
             encoding="utf-8"
         )
 

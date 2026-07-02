@@ -17,6 +17,7 @@ Requirements:
 - Use a professional but natural tone.
 - Keep it around 250-350 words.
 - Emphasize the strongest matches.
+- Prefer concrete project evidence over generic enthusiasm.
 - Mention relevant projects when appropriate.
 - Acknowledge the role naturally without overclaiming.
 - Do not include fake personal details.

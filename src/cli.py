@@ -10,18 +10,20 @@ app = typer.Typer()
 @app.command()
 def analyze(
     jd_path: str = typer.Option("data/sample_jd.txt", help='Customize your job description path'), 
-    profile_path: str = typer.Option("data/candidate_profile.json", help='Customize your profile path'), 
+    profile_path: str = typer.Option("data/candidate_profile.example.json", help='Customize your profile path'), 
     parsed_jd_output_path: str = typer.Option("outputs/parsed_jd.json", help='Customize your parsed job description output path'),
     match_result_output_path: str = typer.Option("outputs/match_result.json", help='Customize your matching result output path'),
     match_report_output_path: str = typer.Option("outputs/match_report.md", help='Customize your matching result output path'),
     cover_letter_output_path: str = typer.Option("outputs/cover_letter.md", help='Customize your output cover letter path'),
     linkedin_message_output_path: str = typer.Option("outputs/linkedin_message.md", help='Customize your output LinkedIn follow-up message path'),
+    resume_bullets_output_path: str = typer.Option("outputs/resume_bullets.md", help='Customize your output recommended resume bullets path'),
     app_tracker_path: str = typer.Option("data/applications.json", help='Customize your application memory path'),
     app_status: str = typer.Option("interested", help='Customize your job application status'),
     app_notes: str = typer.Option('', help='Customize your job application notes for yourselves, default is set as ""'),
     use_mock_llm: bool = typer.Option(True, help='Use MOCKLLM placeholder or real LLM API'),
     generate_cover_letter: bool = typer.Option(False, help='Generate cover letter or not'),
     generate_linkedin_message: bool = typer.Option(False, help='Generate LinkedIn follow-up message or not'),
+    generate_resume_bullets: bool = typer.Option(False, help='Generate recommended resume bullets or not'),
     save_application: bool = typer.Option(False, help='Save current application to application tracker or not')
 ):
     res = run_job_analysis(
@@ -32,12 +34,14 @@ def analyze(
         match_report_output_path,
         cover_letter_output_path,
         linkedin_message_output_path,
+        resume_bullets_output_path,
         app_tracker_path,
         app_status,
         app_notes,
         use_mock_llm,
         generate_cover_letter,
         generate_linkedin_message,
+        generate_resume_bullets,
         save_application,
         verbose = True
     )
@@ -64,8 +68,8 @@ def list_applications(app_tracker_path: str = typer.Option("data/applications.js
 
 @app.command()
 def update_status(
-    app_id: str = typer.Option('', help='The application id you want to update the status'), 
-    new_status: str = typer.Option('', help='The new status you want to update'), 
+    app_id: str = typer.Argument(..., help="Application ID to update."),
+    new_status: str = typer.Argument(..., help="New application status."),
     app_tracker_path: str = typer.Option("data/applications.json", help='Customize your application memory path')
 ):
     status_list = [

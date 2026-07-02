@@ -15,12 +15,14 @@ def run_job_analysis(
     match_report_output_path: str = "outputs/match_report.md",
     cover_letter_output_path: str = "outputs/cover_letter.md",
     linkedin_message_output_path: str = "outputs/linkedin_message.md",
+    resume_bullets_output_path: str = "outputs/resume_bullets.md",
     app_tracker_path: str = "data/applications.json",
     app_status: str = "interested",
     app_notes: str = '',
     use_mock_llm: bool = True,
     generate_cover_letter: bool = False,
     generate_linkedin_message: bool = False,
+    generate_resume_bullets: bool = False,
     save_application: bool = False,
     verbose: bool = True
 ):
@@ -122,7 +124,7 @@ def run_job_analysis(
     if verbose:
         print(f"Saved match report to {match_report_output_path}")
 
-    if generate_cover_letter or generate_linkedin_message:
+    if generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
         if use_mock_llm:
             llm_client = MockLLMClient()
             if verbose:
@@ -163,6 +165,21 @@ def run_job_analysis(
 
         if verbose:
             print(f"Saved LinkedIn message to {linkedin_message_output_path}")
+    
+    if generate_resume_bullets:
+        resume_bullets = generator.generate_resume_bullets(
+            parsed_jd=parsed_jd,
+            match_result=match_result,
+            candidate_profile=candidate_profile,
+        )
+
+        save_text(
+            resume_bullets_output_path,
+            resume_bullets
+        )
+
+        if verbose:
+            print(f"Saved recommended resume bullets to {resume_bullets_output_path}")
 
     # 5. Track the Application
     if save_application:
@@ -187,6 +204,7 @@ def run_job_analysis(
             'match_report_path': match_report_output_path,
             'cover_letter_path': cover_letter_output_path,
             'linkedin_message_path': linkedin_message_output_path,
+            'resume_bullets_path': resume_bullets_output_path,
             'notes': [app_notes] if app_notes else [],
             'created_at': create_time,
             'updated_at': create_time
@@ -206,6 +224,7 @@ def run_job_analysis(
         "match_report_path": match_report_output_path,
         "cover_letter_path": cover_letter_output_path if generate_cover_letter else None,
         "linkedin_message_path": linkedin_message_output_path if generate_linkedin_message else None,
+        "resume_bullets_path": resume_bullets_output_path if generate_resume_bullets else None,
         "application_id": app_id if save_application else None
     }
 

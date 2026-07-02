@@ -16,9 +16,10 @@ Write a short professional LinkedIn message.
 Requirements:
 - Keep it concise, around 80-120 words.
 - Use a natural and polite tone.
+- Prefer concrete project evidence over generic enthusiasm.
 - Mention the role and company.
 - Briefly highlight the strongest matching background.
-- Mention 1 relevant project only if it fits naturally.
+- Mention at most one relevant project only if it fits naturally.
 - Mention understand the other side may not be the direct recruiter for this specific role
 - Mention hope to be guided to the appropriate recruiting contact or hiring team.
 - Do not sound overly formal like a cover letter.
