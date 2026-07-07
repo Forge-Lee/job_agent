@@ -116,3 +116,41 @@ class MaterialValidator():
             line for line in text.splitlines()
             if line.strip().startswith("-")
         ]
+
+        has_placeholder = self._find_placeholders(text)
+
+        errors = []
+        warnings = []
+        bullet_length = len(bullet_lines)
+        if bullet_length > 7:
+            warnings.append('more than 7 bullet lines')
+        if bullet_length < 2:
+            errors.append('fewer than 2 bullet lines')
+        if not text.strip():
+            errors.append("empty text")
+
+        if has_placeholder:
+            warnings.append('contains placeholder')
+
+        first_person = ['i', 'my']
+        contain_first_person = False
+        for line in bullet_lines:
+            line_splitted = line.split(' ')
+            for chars in line_splitted:
+                chars = chars.strip(string.punctuation).lower()
+                if chars in first_person:
+                    contain_first_person = True
+                    break
+            
+            if contain_first_person:
+                warnings.append('contains first-person language: "I ", "my "')
+                break
+        
+        res = {
+            "passed": len(errors) == 0,
+            "errors": errors,
+            "warnings": warnings,
+            "bullets_count": bullet_length
+        }
+
+        return res

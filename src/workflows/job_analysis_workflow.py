@@ -6,6 +6,7 @@ from src.agents.material_generator import MaterialGenerator
 from src.utils.llm_client import MockLLMClient, OpenAIClient
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.file_loader import *
+from src.tools.material_validator import MaterialValidator
 
 def run_job_analysis(
     jd_path: str = "data/sample_jd.txt", 
@@ -136,6 +137,8 @@ def run_job_analysis(
 
         generator = MaterialGenerator(llm_client=llm_client)
 
+        validator = MaterialValidator()
+
     if generate_cover_letter:
         cover_letter = generator.generate_cover_letter(
             parsed_jd=parsed_jd,
@@ -150,6 +153,11 @@ def run_job_analysis(
 
         if verbose:
             print(f"Saved cover letter to {cover_letter_output_path}")
+            print('Validating cover letter...')
+        
+        cover_letter_validation = validator.validate_cover_letter(cover_letter, parsed_jd, candidate_profile)
+        if verbose:
+            print(cover_letter_validation)
 
     if generate_linkedin_message:
         linkedin_message = generator.generate_linkedin_message(
@@ -165,6 +173,11 @@ def run_job_analysis(
 
         if verbose:
             print(f"Saved LinkedIn message to {linkedin_message_output_path}")
+            print('Validating LinkedIn message...')
+        
+        linkedin_message_validation = validator.validate_linkedin_message(linkedin_message, parsed_jd, candidate_profile)
+        if verbose:
+            print(linkedin_message_validation)
     
     if generate_resume_bullets:
         resume_bullets = generator.generate_resume_bullets(
@@ -180,6 +193,11 @@ def run_job_analysis(
 
         if verbose:
             print(f"Saved recommended resume bullets to {resume_bullets_output_path}")
+            print('Validating recommended resume bullets...')
+        
+        resume_bullets_validation = validator.validate_resume_bullets(resume_bullets, parsed_jd, candidate_profile)
+        if verbose:
+            print(resume_bullets_validation)
 
     # 5. Track the Application
     if save_application:
