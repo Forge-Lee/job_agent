@@ -4,6 +4,7 @@ from rich.table import Table
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.tools.application_tracker import ApplicationTracker
+from src.tools.application_retriever import ApplicationRetriever
 
 app = typer.Typer()
 
@@ -89,6 +90,35 @@ def update_status(
     else:
         print('Invalid status, please choose a status from\n')
         print('interested, applied, followed_up, interviewing, rejected, offer, and closed')
+
+@app.command()
+def search_applications(
+    query: str = typer.Argument(..., help="Search query for past applications."),
+    top_k: int = typer.Option(3, help='Return top-k records that related to the query'),
+    app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file.")
+):
+    retriever = ApplicationRetriever()
+    retriever.load_records(app_tracker_path)
+    retriever.build_documents()
+    results = retriever.retrieve(query, top_k)
+    if not results:
+        print("No relevant applications found.")
+        return
+    else:
+        digit = len(results) if len(results) < top_k else top_k
+        table = Table(title= f"Top-{digit} Application Record Related to User's Query")
+        table.add_column("Application ID", justify="center", style="cyan", no_wrap=True)
+        table.add_column("Company", justify="center", style="white", no_wrap=True)
+        table.add_column("Role", justify="center", style="magenta", no_wrap=True)
+        table.add_column("Status", justify="center", style="blue", no_wrap=True)
+        table.add_column("Match Score", justify="center", style="green", no_wrap=True)
+        table.add_column("Retrieval Score", justify="center", style="green", no_wrap=True)
+
+        for app in results:
+            table.add_row(app["application_id"], app["company"], app["role"], app["status"], str(app["match_score"]), str(app["retrieval_score"]))
+        
+        console = Console()
+        console.print(table)
 
 if __name__ == "__main__":
     app()
