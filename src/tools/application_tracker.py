@@ -49,6 +49,7 @@ class ApplicationTracker:
                 self.record[index]['match_report_path'] = record['match_report_path']
                 self.record[index]['cover_letter_path'] = record['cover_letter_path']
                 self.record[index]['linkedin_message_path'] = record['linkedin_message_path']
+                self.record[index]['resume_bullets_path'] = record['resume_bullets_path']
                 self.record[index]['notes'] = record['notes']
                 self.record[index]['updated_at'] = record['updated_at']
                 self.save_applications(self.record)
