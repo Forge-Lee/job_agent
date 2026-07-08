@@ -10,13 +10,13 @@ from src.tools.material_validator import MaterialValidator
 
 def run_job_analysis(
     jd_path: str = "data/sample_jd.txt", 
-    profile_path: str = "data/candidate_profile.json", 
-    parsed_jd_output_path: str = "outputs/parsed_jd.json",
-    match_result_output_path: str = "outputs/match_result.json",
-    match_report_output_path: str = "outputs/match_report.md",
-    cover_letter_output_path: str = "outputs/cover_letter.md",
-    linkedin_message_output_path: str = "outputs/linkedin_message.md",
-    resume_bullets_output_path: str = "outputs/resume_bullets.md",
+    profile_path: str | None = "data/candidate_profile.example.json", 
+    parsed_jd_output_path: str | None = None,
+    match_result_output_path: str | None = None,
+    match_report_output_path: str | None = None,
+    cover_letter_output_path: str | None = None,
+    linkedin_message_output_path: str | None = None,
+    resume_bullets_output_path: str | None = None,
     app_tracker_path: str = "data/applications.json",
     app_status: str = "interested",
     app_notes: str = '',
@@ -43,6 +43,29 @@ def run_job_analysis(
     # 2. Parse JD
     parser = JDParser()
     parsed_jd = parser.parse(job_description)
+
+    # generate output paths
+    app_id = parsed_jd.company + ' ' + parsed_jd.role
+    app_id = app_id.lower()
+    app_id = app_id.replace(' ','-')
+
+    if parsed_jd_output_path is None:
+        parsed_jd_output_path = f"outputs/applications/{app_id}/parsed_jd.json"
+
+    if match_result_output_path is None:
+        match_result_output_path = f"outputs/applications/{app_id}/match_result.json"
+
+    if match_report_output_path is None:
+        match_report_output_path = f"outputs/applications/{app_id}/match_report.md"
+
+    if cover_letter_output_path is None:
+        cover_letter_output_path = f"outputs/applications/{app_id}/cover_letter.md"
+
+    if linkedin_message_output_path is None:
+        linkedin_message_output_path = f"outputs/applications/{app_id}/linkedin_message.md"
+
+    if resume_bullets_output_path is None:
+        resume_bullets_output_path = f"outputs/applications/{app_id}/resume_bullets.md"
 
     save_json(
         parsed_jd_output_path,
@@ -204,9 +227,6 @@ def run_job_analysis(
         tracker = ApplicationTracker(app_tracker_path)
 
         # generate record for current job
-        app_id = parsed_jd.company + ' ' + parsed_jd.role
-        app_id = app_id.lower()
-        app_id = app_id.replace(' ','-')
         company = parsed_jd.company
         role = parsed_jd.role
         match_score = match_result.match_score
@@ -243,7 +263,7 @@ def run_job_analysis(
         "cover_letter_path": cover_letter_output_path if generate_cover_letter else None,
         "linkedin_message_path": linkedin_message_output_path if generate_linkedin_message else None,
         "resume_bullets_path": resume_bullets_output_path if generate_resume_bullets else None,
-        "application_id": app_id if save_application else None
+        "application_id": app_id
     }
 
     return res
