@@ -99,7 +99,8 @@ class ApplicationRetriever():
                         'role': doc['role'],
                         'status': doc['status'],
                         'match_score': doc['match_score'],
-                        "retrieval_score": score
+                        "retrieval_score": score,
+                        "retrieved_text": doc['text'][:3000]
                     }
                     res.append(curr_res)
 

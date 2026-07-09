@@ -3,6 +3,7 @@ from rich.console import Console
 from rich.table import Table
 
 from src.workflows.job_analysis_workflow import run_job_analysis
+from src.workflows.application_memory_workflow import run_application_memory_query
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.application_retriever import ApplicationRetriever
 
@@ -94,7 +95,7 @@ def update_status(
 @app.command()
 def search_applications(
     query: str = typer.Argument(..., help="Search query for past applications."),
-    top_k: int = typer.Option(3, help='Return top-k records that related to the query'),
+    top_k: int = typer.Option(3, help="Return the top-k application records related to the query."),
     app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file.")
 ):
     retriever = ApplicationRetriever()
@@ -105,7 +106,7 @@ def search_applications(
         print("No relevant applications found.")
         return
     else:
-        digit = len(results) if len(results) < top_k else top_k
+        digit = len(results)
         table = Table(title= f"Top-{digit} Application Record Related to User's Query")
         table.add_column("Application ID", justify="center", style="cyan", no_wrap=True)
         table.add_column("Company", justify="center", style="white", no_wrap=True)
@@ -119,6 +120,21 @@ def search_applications(
         
         console = Console()
         console.print(table)
+
+@app.command()
+def ask_memory(
+    query: str = typer.Argument(..., help="Ask query for past applications."),
+    use_mock_llm: bool = typer.Option(True, help='Use MOCKLLM placeholder or real LLM API'),
+    top_k: int = typer.Option(3, help="Search for the top-k application records related to the query."),
+    app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file.")
+):
+    answers = run_application_memory_query(
+        query = query,
+        use_mock_llm = use_mock_llm,
+        top_k = top_k,
+        app_tracker_path = app_tracker_path
+    )
+    print(answers['answer'])
 
 if __name__ == "__main__":
     app()
