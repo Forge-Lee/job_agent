@@ -110,14 +110,6 @@ def flatten_profile_skills(candidate_profile: dict) -> list[str]:
         return res
     return []
 
-# def text_matches_profile(item: str, profile_terms: list[str]) -> bool:
-#     item_low = item.lower()
-#     for term in profile_terms:
-#         term_low = term.lower()
-#         if term_low in item_low or item_low in term_low:
-#             return True
-#     return False
-
 SHORT_EXACT_TERMS = {"ai", "ml", "cv", "dl"}
 
 def text_matches_profile(item: str, profile_terms: list[str]) -> bool:
