@@ -1,10 +1,22 @@
 import os
 from dotenv import load_dotenv
 import time
+import json
 from openai import OpenAI, InternalServerError, RateLimitError, APIConnectionError
 
 class MockLLMClient:
     def generate_text(self, prompt: str) -> str:
+        if "AI career matching evaluator" in prompt or "llm_score" in prompt:
+            return json.dumps({
+                "llm_score": 0.76,
+                "llm_strengths": [
+                    "The candidate shows relevant project-based evidence for the target role."
+                ],
+                "llm_gaps": [
+                    "Some requirements have limited direct evidence in the profile."
+                ],
+                "llm_reasoning_summary": "The candidate appears to be a strong adjacent fit based on skills, tools, and project experience."
+            })
         return "This is a mock LLM response generated from the provided prompt."
 
 

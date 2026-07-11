@@ -25,6 +25,7 @@ def run_job_analysis(
     generate_linkedin_message: bool = False,
     generate_resume_bullets: bool = False,
     save_application: bool = False,
+    use_llm_matcher: bool = False,
     verbose: bool = True
 ):
     if verbose:
@@ -90,8 +91,33 @@ def run_job_analysis(
         print()
 
     # 3. Match candidate profile
-    matcher = ProfileMatcher()
-    match_result = matcher.match(parsed_jd, candidate_profile)
+
+    llm_client = MockLLMClient()
+
+    if use_llm_matcher or generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
+        if use_mock_llm:
+            llm_client = MockLLMClient()
+            if verbose:
+                print('Using MockLLMClient as api placeholder.')
+        else:
+            llm_client = OpenAIClient()
+            if verbose:
+                print('Using real LLM API as backend.')
+
+    if generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
+        validator = MaterialValidator()
+        generator = MaterialGenerator(llm_client=llm_client)
+
+    if use_llm_matcher:
+        matcher = ProfileMatcher(llm_client=llm_client)
+    else:
+        matcher = ProfileMatcher()
+
+    match_result = matcher.match(
+        parsed_jd=parsed_jd,
+        candidate_profile=candidate_profile,
+        use_llm_matcher=use_llm_matcher,
+    )
 
     save_json(
         match_result_output_path,
@@ -131,7 +157,6 @@ def run_job_analysis(
         print(match_result.positioning_summary)
 
     # 4. Generate Matching Report
-    llm_client = MockLLMClient()
     generator = MaterialGenerator(llm_client=llm_client)
 
     match_report = generator.generate_match_report(
@@ -147,20 +172,6 @@ def run_job_analysis(
 
     if verbose:
         print(f"Saved match report to {match_report_output_path}")
-
-    if generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
-        if use_mock_llm:
-            llm_client = MockLLMClient()
-            if verbose:
-                print('Using MockLLMClient as api placeholder.')
-        else:
-            llm_client = OpenAIClient()
-            if verbose:
-                print('Using real LLM API as backend.')
-
-        generator = MaterialGenerator(llm_client=llm_client)
-
-        validator = MaterialValidator()
 
     if generate_cover_letter:
         cover_letter = generator.generate_cover_letter(

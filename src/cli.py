@@ -26,6 +26,7 @@ def analyze(
     generate_cover_letter: bool = typer.Option(False, help='Generate cover letter or not'),
     generate_linkedin_message: bool = typer.Option(False, help='Generate LinkedIn follow-up message or not'),
     generate_resume_bullets: bool = typer.Option(False, help='Generate recommended resume bullets or not'),
+    use_llm_matcher: bool = typer.Option(False, help="Use LLM-based semantic profile matching."),
     save_application: bool = typer.Option(False, help='Save current application to application tracker or not')
 ):
     res = run_job_analysis(
@@ -45,6 +46,7 @@ def analyze(
         generate_linkedin_message,
         generate_resume_bullets,
         save_application,
+        use_llm_matcher,
         verbose = True
     )
 

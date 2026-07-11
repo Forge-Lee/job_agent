@@ -1,4 +1,6 @@
 from src.schemas.models import ParsedJD, MatchResult
+from pathlib import Path
+import json
 
 SKILL_ALIASES = {
     "machine learning": [
@@ -176,7 +178,10 @@ def safe_ratio(matched_count: int, total_count: int) -> float:
     return matched_count / total_count
 
 class ProfileMatcher:
-    def match(self, parsed_jd: ParsedJD, candidate_profile: dict) -> MatchResult:
+    def __init__(self, llm_client=None):
+        self.llm_client = llm_client
+
+    def rule_based_match(self, parsed_jd: ParsedJD, candidate_profile: dict) -> MatchResult:
         matched_required_skills = []
         missing_required_skills = []
         matched_preferred_skills = []
@@ -199,8 +204,6 @@ class ProfileMatcher:
             for kw in keywords:
                 if kw not in candidate_skills:
                     candidate_skills.append(kw)
-
-        # candidate_tools = candidate_profile["skills"].get("tools", [])
         
         for skill in required_skills:
             skill_low = skill.lower()
@@ -308,9 +311,10 @@ class ProfileMatcher:
         if missing_required_skills:
             
             for item in missing_required_skills:
+                item_low = item.lower()
                 block = False
                 for kws in filtering_kws:
-                    if kws in item:
+                    if kws in item_low:
                         block = True
                         break
                 if not block:
@@ -318,7 +322,14 @@ class ProfileMatcher:
         
         if missing_preferred_skills:
             for item in missing_preferred_skills:
-                gaps.append(f"Limited direct evidence for: {item}")
+                item_low = item.lower()
+                block = False
+                for kws in filtering_kws:
+                    if kws in item_low:
+                        block = True
+                        break
+                if not block:
+                    gaps.append(f"Limited direct evidence for: {item}")
 
         if "computer vision" in matched_domains:
             positioning_summary = "Position the candidate as an applied AI / computer vision engineer with experience in image processing, ML workflows, and structured project execution."
@@ -340,3 +351,87 @@ class ProfileMatcher:
             gaps=gaps,
             positioning_summary=positioning_summary,
         )
+    
+    def llm_based_match(self, parsed_jd, candidate_profile, rule_result) -> dict:
+        if self.llm_client is None:
+            raise ValueError("LLM client is required for LLM-based profile matching.")
+
+        prompt_template = Path("src/prompts/profile_match_prompt.txt").read_text(
+            encoding="utf-8"
+        )
+
+        prompt = prompt_template.format(
+            parsed_jd=parsed_jd.model_dump_json(indent=2),
+            candidate_profile=json.dumps(candidate_profile, indent=2),
+            rule_result=rule_result.model_dump_json(indent=2),
+        )
+
+        response = self.llm_client.generate_text(prompt)
+
+        try:
+            llm_result = json.loads(response)
+        except json.JSONDecodeError:
+            llm_result = {
+                "llm_score": rule_result.match_score,
+                "llm_strengths": [],
+                "llm_gaps": ["LLM matcher returned invalid JSON."],
+                "llm_reasoning_summary": response,
+            }
+
+        return llm_result
+
+    def combine_results(self, rule_result, llm_result, rule_weight = 0.7, llm_weight = 0.3) -> MatchResult:
+        try:
+            llm_score = float(llm_result.get("llm_score", rule_result.match_score))
+        except (TypeError, ValueError):
+            llm_score = rule_result.match_score
+
+        llm_score = max(0.0, min(llm_score, 1.0))
+
+        final_score = (
+            rule_weight * rule_result.match_score
+            + llm_weight * llm_score
+        )
+        final_score = round(final_score, 2)
+
+        llm_strengths = llm_result.get("llm_strengths", [])
+        llm_gaps = llm_result.get("llm_gaps", [])
+        llm_reasoning_summary = llm_result.get("llm_reasoning_summary", "")
+
+        combined_strengths = list(rule_result.strengths)
+        for strength in llm_strengths:
+            combined_strengths.append(f"LLM semantic match: {strength}")
+
+        combined_gaps = list(rule_result.gaps)
+        for gap in llm_gaps:
+            combined_gaps.append(f"LLM semantic gap: {gap}")
+
+        positioning_summary = rule_result.positioning_summary
+        if llm_reasoning_summary:
+            positioning_summary = (
+                f"{rule_result.positioning_summary}\n\n"
+                f"LLM semantic assessment: {llm_reasoning_summary}"
+            )
+
+        return MatchResult(
+            match_score=final_score,
+            matched_required_skills=rule_result.matched_required_skills,
+            missing_required_skills=rule_result.missing_required_skills,
+            matched_preferred_skills=rule_result.matched_preferred_skills,
+            missing_preferred_skills=rule_result.missing_preferred_skills,
+            matched_tools=rule_result.matched_tools,
+            matched_domains=rule_result.matched_domains,
+            relevant_projects=rule_result.relevant_projects,
+            strengths=combined_strengths,
+            gaps=combined_gaps,
+            positioning_summary=positioning_summary,
+        )
+
+    def match(self, parsed_jd, candidate_profile, use_llm_matcher=False) -> MatchResult:
+        rule_result = self.rule_based_match(parsed_jd, candidate_profile)
+
+        if not use_llm_matcher:
+            return rule_result
+
+        llm_result = self.llm_based_match(parsed_jd, candidate_profile, rule_result)
+        return self.combine_results(rule_result, llm_result)

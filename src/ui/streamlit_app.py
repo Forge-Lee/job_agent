@@ -37,6 +37,7 @@ with tab_analysis:
     generate_linkedin_message = st.checkbox("Generate LinkedIn message", value=False)
     generate_resume_bullets = st.checkbox("Generate resume bullets", value=False)
     save_application = st.checkbox("Save application", value=False)
+    use_llm_matcher = st.checkbox("Use LLM-based semantic matching", value=False)
 
     if st.button("Analyze Job"):
         try:
@@ -49,6 +50,7 @@ with tab_analysis:
                     generate_linkedin_message=generate_linkedin_message,
                     generate_resume_bullets=generate_resume_bullets,
                     save_application=save_application,
+                    use_llm_matcher=use_llm_matcher,
                     verbose=False,
                 )
 
