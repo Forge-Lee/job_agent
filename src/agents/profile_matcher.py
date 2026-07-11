@@ -169,6 +169,20 @@ def safe_ratio(matched_count: int, total_count: int) -> float:
         return 0.0
     return matched_count / total_count
 
+def parse_llm_json_response(response: str) -> dict:
+    cleaned = response.strip()
+
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[len("```json"):].strip()
+
+    if cleaned.startswith("```"):
+        cleaned = cleaned[len("```"):].strip()
+
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-len("```")].strip()
+
+    return json.loads(cleaned)
+
 class ProfileMatcher:
     def __init__(self, llm_client=None):
         self.llm_client = llm_client
@@ -361,7 +375,7 @@ class ProfileMatcher:
         response = self.llm_client.generate_text(prompt)
 
         try:
-            llm_result = json.loads(response)
+            llm_result = parse_llm_json_response(response)
         except json.JSONDecodeError:
             llm_result = {
                 "llm_score": rule_result.match_score,
