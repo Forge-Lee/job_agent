@@ -102,10 +102,19 @@ class EmbeddingApplicationRetriever:
         return self.embedding_index
 
     def save_embedding_index(self):
-        ...
+        Path(self.embedding_index_path).parent.mkdir(parents=True, exist_ok=True)
+
+        Path(self.embedding_index_path).write_text(
+            json.dumps(self.embedding_index, indent=2),
+            encoding="utf-8",
+        )
 
     def load_embedding_index(self):
-        ...
+        if not os.path.isfile(self.embedding_index_path):
+            self.embedding_index = []
+        else:
+            self.embedding_index = json.loads(Path(self.embedding_index_path).read_text(encoding="utf-8"))
+        return self.build_embedding_index
 
     def retrieve(self, query: str, top_k: int = 3):
         ...
