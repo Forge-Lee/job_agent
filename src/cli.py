@@ -128,15 +128,20 @@ def ask_memory(
     query: str = typer.Argument(..., help="Ask query for past applications."),
     use_mock_llm: bool = typer.Option(True, help='Use MOCKLLM placeholder or real LLM API'),
     top_k: int = typer.Option(3, help="Search for the top-k application records related to the query."),
-    app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file.")
+    app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file."),
+    retrieval_mode: str = typer.Option("keyword", help="Retrieval mode: keyword or embedding."),
+    use_mock_embedding: bool = typer.Option(True, help="Use mock embedding client or real embedding API.")
 ):
     answers = run_application_memory_query(
         query = query,
         use_mock_llm = use_mock_llm,
         top_k = top_k,
-        app_tracker_path = app_tracker_path
+        app_tracker_path = app_tracker_path,
+        retrieval_mode=retrieval_mode,
+        use_mock_embedding=use_mock_embedding
     )
     print(answers['answer'])
+    # print(answers['retrieved_results'])
 
 if __name__ == "__main__":
     app()

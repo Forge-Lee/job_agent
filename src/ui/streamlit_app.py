@@ -157,6 +157,16 @@ with tab_memory:
 
     use_mock_memory_llm = st.checkbox("Use mock LLM for memory answer", value=True)
 
+    retrieval_mode = st.selectbox(
+        "Retrieval mode",
+        ["keyword", "embedding"],
+    )
+
+    use_mock_embedding = st.checkbox(
+        "Use mock embedding client",
+        value=True,
+    )
+
     if st.button("Ask Memory"):
         try:
             with st.spinner("Querying application memory..."):
@@ -165,6 +175,8 @@ with tab_memory:
                     top_k=top_k,
                     use_mock_llm=use_mock_memory_llm,
                     app_tracker_path=app_tracker_path,
+                    retrieval_mode=retrieval_mode,
+                    use_mock_embedding=use_mock_embedding,
                     verbose=False,
                 )
             

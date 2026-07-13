@@ -6,6 +6,16 @@ import numpy as np
 
 from src.tools.file_loader import load_json, save_json
 
+def cosine_similarity(vec_a, vec_b) -> float:
+    a = np.array(vec_a)
+    b = np.array(vec_b)
+
+    denominator = np.linalg.norm(a) * np.linalg.norm(b)
+    if denominator == 0:
+        return 0.0
+
+    return float(np.dot(a, b) / denominator)
+
 class EmbeddingApplicationRetriever:
     # RAG v1: keyword-matching RAG -> done
     # RAG v2: hand-written embedding RAG
@@ -26,10 +36,10 @@ class EmbeddingApplicationRetriever:
 
     def load_records(self):
         if not os.path.isfile(self.app_tracker_path):
-            self.record = []
+            self.records = []
         else:
-            self.record = json.loads(Path(self.app_tracker_path).read_text(encoding="utf-8"))
-        return self.record
+            self.records = json.loads(Path(self.app_tracker_path).read_text(encoding="utf-8"))
+        return self.records
 
     def build_documents(self):
         if not self.records:
@@ -117,4 +127,39 @@ class EmbeddingApplicationRetriever:
         return self.build_embedding_index
 
     def retrieve(self, query: str, top_k: int = 3):
-        ...
+        if not self.embedding_index:
+            self.load_embedding_index()
+
+        if not self.embedding_index:
+            self.build_embedding_index()
+            self.save_embedding_index()
+
+        query_embedding = self.embedding_client.embed_text(query)
+
+        scored_results = []
+
+        for item in self.embedding_index:
+            similarity = cosine_similarity(
+                query_embedding,
+                item["embedding"],
+            )
+
+            result = {
+                "application_id": item["application_id"],
+                "company": item["company"],
+                "role": item["role"],
+                "status": item["status"],
+                "match_score": item["match_score"],
+                "retrieval_score": round(similarity, 4),
+                "retrieved_text": item["text"][:1500],
+            }
+
+            scored_results.append(result)
+
+        scored_results = sorted(
+            scored_results,
+            key=lambda x: x["retrieval_score"],
+            reverse=True,
+        )
+
+        return scored_results[:top_k]
