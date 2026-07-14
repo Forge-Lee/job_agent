@@ -210,7 +210,7 @@ with tab_memory:
 
     retrieval_mode = st.selectbox(
         "Retrieval mode",
-        ["keyword", "embedding"],
+        ["keyword", "embedding", "chroma"],
     )
 
     use_mock_embedding = st.checkbox(

@@ -27,6 +27,7 @@ data/candidate_profile.json
 data/application_embeddings.json
 data/profiles/*
 data/uploads/*
+data/chroma_db/*
 timeline.txt
 job_agent_optimization_timeline.md
 job_agent_optimization_timeline.pdf

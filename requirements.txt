@@ -6,3 +6,4 @@ pytest
 typer
 streamlit
 pandas
+chromadb
