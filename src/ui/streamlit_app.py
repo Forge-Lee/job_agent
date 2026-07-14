@@ -101,6 +101,7 @@ with tab_analysis:
                         generate_resume_bullets=generate_resume_bullets,
                         save_application=save_application,
                         use_llm_matcher=use_llm_matcher,
+                        use_llm_jd_parser=use_llm_jd_parser,
                         verbose=False,
                     )
 
