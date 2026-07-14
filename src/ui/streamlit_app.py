@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
 from src.tools.application_tracker import ApplicationTracker
+from src.tools.profile_manager import parse_comma_list, save_user_profile, list_saved_profiles
 
 st.set_page_config(
     page_title="AI Job Application Assistant",
@@ -13,24 +15,75 @@ st.set_page_config(
 st.title("AI Job Application Assistant")
 st.caption("JD analysis, application tracking, and RAG-based application memory.")
 
-tab_analysis, tab_tracker, tab_memory = st.tabs([
+tab_analysis, tab_tracker, tab_memory, tab_profile = st.tabs([
     "Job Analysis",
     "Application Tracker",
     "Application Memory",
+    "User Profile"
 ])
 
 with tab_analysis:
     st.header("Job Analysis")
 
-    jd_path = st.text_input(
-        "Job description path",
-        value="data/sample_jd.txt",
+    jd_input_mode = st.radio(
+        "Job description input mode",
+        ["Use local path", "Paste JD text"],
     )
 
-    profile_path = st.text_input(
-        "Candidate profile path",
-        value="data/candidate_profile.example.json",
+    if jd_input_mode == "Paste JD text":
+        jd_text = st.text_area(
+            "Paste job description",
+            height=300,
+            placeholder="Paste the full job description here...",
+        )
+
+        if jd_text.strip():
+            upload_dir = Path("data/uploads")
+            upload_dir.mkdir(parents=True, exist_ok=True)
+
+            jd_path = upload_dir / "pasted_jd.txt"
+            jd_path.write_text(jd_text, encoding="utf-8")
+
+            jd_path = str(jd_path)
+        else:
+            jd_path = None
+    else:
+        jd_path = st.text_input(
+            "Job description path",
+            value="data/sample_jd.txt",
+        )
+
+    # jd_path = st.text_input(
+    #     "Job description path",
+    #     value="data/sample_jd.txt",
+    # )
+
+    profile_input_mode = st.radio(
+        "Candidate profile input mode",
+        ["Use saved profile", "Use local path"],
     )
+
+    # profile_path = st.text_input(
+    #     "Candidate profile path",
+    #     value="data/candidate_profile.example.json",
+    # )
+
+    if profile_input_mode == "Use saved profile":
+        saved_profiles = list_saved_profiles()
+
+        if saved_profiles:
+            profile_path = st.selectbox(
+                "Select saved profile",
+                saved_profiles,
+            )
+        else:
+            st.warning("No saved profiles found. Please create one in the User Profile tab.")
+            profile_path = "data/candidate_profile.example.json"
+    else:
+        profile_path = st.text_input(
+            "Candidate profile path",
+            value="data/candidate_profile.example.json",
+        )
 
     use_mock_llm = st.checkbox("Use mock LLM", value=True)
     generate_cover_letter = st.checkbox("Generate cover letter", value=False)
@@ -41,22 +94,25 @@ with tab_analysis:
 
     if st.button("Analyze Job"):
         try:
-            with st.spinner("Analyzing job..."):
-                result = run_job_analysis(
-                    jd_path=jd_path,
-                    profile_path=profile_path,
-                    use_mock_llm=use_mock_llm,
-                    generate_cover_letter=generate_cover_letter,
-                    generate_linkedin_message=generate_linkedin_message,
-                    generate_resume_bullets=generate_resume_bullets,
-                    save_application=save_application,
-                    use_llm_matcher=use_llm_matcher,
-                    verbose=False,
-                )
+            if not jd_path:
+                st.error("Please provide a job description before analyzing.")
+            else:
+                with st.spinner("Analyzing job..."):
+                    result = run_job_analysis(
+                        jd_path=jd_path,
+                        profile_path=profile_path,
+                        use_mock_llm=use_mock_llm,
+                        generate_cover_letter=generate_cover_letter,
+                        generate_linkedin_message=generate_linkedin_message,
+                        generate_resume_bullets=generate_resume_bullets,
+                        save_application=save_application,
+                        use_llm_matcher=use_llm_matcher,
+                        verbose=False,
+                    )
 
-            st.session_state["job_analysis_result"] = result
+                st.session_state["job_analysis_result"] = result
 
-            st.success("Job analysis completed.")
+                st.success("Job analysis completed.")
 
         except Exception as e:
             st.error("Job analysis failed.")
@@ -198,3 +254,160 @@ with tab_memory:
             st.dataframe(pd.DataFrame(retrieved_results), use_container_width=True)
         else:
             st.info("No relevant applications found.")
+
+
+
+with tab_profile:
+    st.header("User Profile")
+
+    if "profile_projects" not in st.session_state:
+        st.session_state["profile_projects"] = [
+            {
+                "name": "AI Job Application Assistant",
+                "description": "Built an AI-powered job application assistant with JD parsing, hybrid profile matching, LLM material generation, application tracking, and embedding-based RAG memory.",
+                "keywords": "LLM, RAG, Streamlit, Python, OpenAI, agentic workflow",
+            }
+        ]
+
+    if "profile_education" not in st.session_state:
+        st.session_state["profile_education"] = [
+            {
+                "school": "Example University",
+                "degree": "M.S. in Example Engineering",
+                "details": "Graduate student focusing on machine learning, computer vision, and AI systems.",
+            }
+        ]
+
+    profile_name = st.text_input("Profile name", value="default_profile")
+
+    st.subheader("Education")
+
+    if st.button("Add Education"):
+        st.session_state["profile_education"].append({
+            "degree": "",
+            "school": "",
+            "focus": "",
+        })
+
+    for i, edu in enumerate(st.session_state["profile_education"]):
+        with st.expander(f"Education #{i + 1}", expanded=True):
+            edu["degree"] = st.text_input(
+                "Degree",
+                value=edu.get("degree", ""),
+                key=f"edu_degree_{i}",
+            )
+
+            edu["school"] = st.text_input(
+                "School",
+                value=edu.get("school", ""),
+                key=f"edu_school_{i}",
+            )
+
+            edu["focus"] = st.text_input(
+                "Focus areas",
+                value=edu.get("focus", ""),
+                key=f"edu_focus_{i}",
+                help="Comma-separated, e.g. Machine Learning, Computer Vision, Robotics",
+            )
+
+    st.subheader("Skills")
+
+    programming = st.text_input(
+        "Programming languages",
+        value="Python, C++",
+    )
+
+    ml_skills = st.text_input(
+        "ML / AI skills",
+        value="Machine Learning, Deep Learning, Computer Vision, LLM, Robotics",
+    )
+
+    tools = st.text_input(
+        "Tools",
+        value="PyTorch, OpenCV, Streamlit, FastAPI, Git, Docker",
+    )
+
+    domains = st.text_input(
+        "Domains",
+        value="Computer Vision, AI Agents, Robotics",
+    )
+
+    others = st.text_input(
+        "Other skills you hope to provide",
+        value="N/A"
+    )
+
+    st.subheader("Projects")
+
+
+    if st.button("Add Project"):
+        st.session_state["profile_projects"].append({
+            "name": "",
+            "description": "",
+            "keywords": "",
+        })
+
+    for i, project in enumerate(st.session_state["profile_projects"]):
+        with st.expander(f"Project #{i + 1}", expanded=True):
+            project["name"] = st.text_input(
+                "Project name",
+                value=project.get("name", ""),
+                key=f"project_name_{i}",
+            )
+
+            project["description"] = st.text_area(
+                "Project description",
+                value=project.get("description", ""),
+                key=f"project_description_{i}",
+            )
+
+            project["keywords"] = st.text_input(
+                "Project keywords",
+                value=project.get("keywords", ""),
+                key=f"project_keywords_{i}",
+            )
+
+    if st.button("Save Profile"):
+        education_records = []
+
+        for edu in st.session_state["profile_education"]:
+            degree = edu.get("degree", "").strip()
+            school = edu.get("school", "").strip()
+            focus = parse_comma_list(edu.get("focus", ""))
+
+            if degree or school:
+                education_item = {
+                    "degree": degree,
+                    "school": school,
+                }
+
+                if focus:
+                    education_item["focus"] = focus
+
+                education_records.append(education_item)
+
+        projects = []
+
+        for project in st.session_state["profile_projects"]:
+            if project.get("name", "").strip():
+                projects.append({
+                    "name": project.get("name", "").strip(),
+                    "description": project.get("description", "").strip(),
+                    "keywords": parse_comma_list(project.get("keywords", "")),
+                })
+
+        profile = {
+            "education": education_records,
+            "skills": {
+                "programming": parse_comma_list(programming),
+                "machine_learning": parse_comma_list(ml_skills),
+                "tools": parse_comma_list(tools),
+                "domains": parse_comma_list(domains),
+                "other": parse_comma_list(others),
+            },
+            "projects": projects,
+        }
+
+        profile_path = save_user_profile(profile_name, profile)
+        st.success(f"Profile saved to {profile_path}")
+        st.json(profile)
