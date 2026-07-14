@@ -1,4 +1,6 @@
 from src.schemas.models import ParsedJD
+from pathlib import Path
+import json
 
 def get_non_empty_lines(text: str) -> list[str]:
     res = []
@@ -115,8 +117,25 @@ def infer_domains(text: str) -> list[str]:
         return res
     return []
 
+def parse_llm_json_response(response: str) -> dict:
+    cleaned = response.strip()
+
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[len("```json"):].strip()
+
+    if cleaned.startswith("```"):
+        cleaned = cleaned[len("```"):].strip()
+
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-len("```")].strip()
+
+    return json.loads(cleaned)
+
 class JDParser:
-    def parse(self, text: str) -> ParsedJD:
+    def __init__(self, llm_client=None):
+        self.llm_client = llm_client
+
+    def rule_based_parse(self, text: str) -> ParsedJD:
         self.lines = get_non_empty_lines(text)
         self.role = self.lines[0] if self.lines else "not specified"
         self.comp_name = extract_line_after_prefix(self.lines)
@@ -158,18 +177,26 @@ class JDParser:
             sponsorship="not mentioned"
         )
 
+    def llm_based_parse(self, text: str) -> ParsedJD:
+        if self.llm_client is None:
+            raise ValueError("LLM client is required for LLM-based JD parsing.")
 
+        prompt_template = Path("src/prompts/jd_parser_prompt.txt").read_text(
+            encoding="utf-8"
+        )
 
-# test codes
-# with open('C:\\Users\\15654\\Desktop\\coding\\job_agent\\data\\sample_jd.txt', 'r') as file:
-#     job_description = file.read()
-# file.close()
+        prompt = prompt_template.format(job_description=text)
 
-# lines = get_non_empty_lines(job_description)
+        response = self.llm_client.generate_text(prompt)
+        parsed = parse_llm_json_response(response)
 
-# print(extract_line_after_prefix(lines, "Company:"))
-# print(extract_section_items(
-#     lines,
-#     "Responsibilities:",
-#     ["Required Qualifications:", "Preferred Qualifications:", "Internship Details:"]
-# ))
+        return ParsedJD(**parsed)
+
+    def parse(self, text: str, use_llm_parser: bool = False) -> ParsedJD:
+        if not use_llm_parser:
+            return self.rule_based_parse(text)
+
+        try:
+            return self.llm_based_parse(text)
+        except Exception:
+            return self.rule_based_parse(text)

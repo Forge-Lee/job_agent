@@ -53,20 +53,10 @@ with tab_analysis:
             value="data/sample_jd.txt",
         )
 
-    # jd_path = st.text_input(
-    #     "Job description path",
-    #     value="data/sample_jd.txt",
-    # )
-
     profile_input_mode = st.radio(
         "Candidate profile input mode",
         ["Use saved profile", "Use local path"],
     )
-
-    # profile_path = st.text_input(
-    #     "Candidate profile path",
-    #     value="data/candidate_profile.example.json",
-    # )
 
     if profile_input_mode == "Use saved profile":
         saved_profiles = list_saved_profiles()
@@ -91,6 +81,10 @@ with tab_analysis:
     generate_resume_bullets = st.checkbox("Generate resume bullets", value=False)
     save_application = st.checkbox("Save application", value=False)
     use_llm_matcher = st.checkbox("Use LLM-based semantic matching", value=False)
+    use_llm_jd_parser = st.checkbox("Use LLM-based JD parsing", value=False,)
+    if st.button("Clear Job Analysis Result"):
+        st.session_state.pop("job_analysis_result", None)
+        st.success("Cleared previous job analysis result.")
 
     if st.button("Analyze Job"):
         try:

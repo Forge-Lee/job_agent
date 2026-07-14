@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
@@ -7,6 +8,23 @@ from src.utils.llm_client import MockLLMClient, OpenAIClient
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.file_loader import *
 from src.tools.material_validator import MaterialValidator
+
+def slugify_app_id(company: str, role: str) -> str:
+    raw = f"{company} {role}".lower().strip()
+    slug = re.sub(r"[^a-z0-9]+", "-", raw)
+    slug = slug.strip("-")
+    return slug or "unknown-application"
+
+def clean_label_prefix(value: str) -> str:
+    prefixes = ["company:", "role:", "position:", "job title:", "title:"]
+    cleaned = value.strip()
+    lower = cleaned.lower()
+
+    for prefix in prefixes:
+        if lower.startswith(prefix):
+            return cleaned[len(prefix):].strip()
+
+    return cleaned
 
 def run_job_analysis(
     jd_path: str = "data/sample_jd.txt", 
@@ -26,6 +44,7 @@ def run_job_analysis(
     generate_resume_bullets: bool = False,
     save_application: bool = False,
     use_llm_matcher: bool = False,
+    use_llm_jd_parser: bool = False,
     verbose: bool = True
 ):
     if verbose:
@@ -42,13 +61,39 @@ def run_job_analysis(
         print()
 
     # 2. Parse JD
-    parser = JDParser()
-    parsed_jd = parser.parse(job_description)
+    # parser = JDParser()
+    # parsed_jd = parser.parse(job_description)
 
-    # generate output paths
-    app_id = parsed_jd.company + ' ' + parsed_jd.role
-    app_id = app_id.lower()
-    app_id = app_id.replace(' ','-')
+    llm_client = MockLLMClient()
+
+    needs_llm = (
+        use_llm_jd_parser
+        or use_llm_matcher
+        or generate_cover_letter
+        or generate_linkedin_message
+        or generate_resume_bullets
+    )
+    if needs_llm:
+        if use_mock_llm:
+            llm_client = MockLLMClient()
+            if verbose:
+                print('Using MockLLMClient as api placeholder.')
+        else:
+            llm_client = OpenAIClient()
+            if verbose:
+                print('Using real LLM API as backend.')
+
+    if use_llm_jd_parser:
+        parser = JDParser(llm_client=llm_client)
+    else:
+        parser = JDParser()
+
+    parsed_jd = parser.parse(
+        job_description,
+        use_llm_parser=use_llm_jd_parser,
+    )
+
+    app_id = slugify_app_id(parsed_jd.company, parsed_jd.role)
 
     if parsed_jd_output_path is None:
         parsed_jd_output_path = f"outputs/applications/{app_id}/parsed_jd.json"
@@ -91,18 +136,6 @@ def run_job_analysis(
         print()
 
     # 3. Match candidate profile
-
-    llm_client = MockLLMClient()
-
-    if use_llm_matcher or generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
-        if use_mock_llm:
-            llm_client = MockLLMClient()
-            if verbose:
-                print('Using MockLLMClient as api placeholder.')
-        else:
-            llm_client = OpenAIClient()
-            if verbose:
-                print('Using real LLM API as backend.')
 
     if generate_cover_letter or generate_linkedin_message or generate_resume_bullets:
         validator = MaterialValidator()
