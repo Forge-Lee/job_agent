@@ -17,6 +17,34 @@ class MockLLMClient:
                 ],
                 "llm_reasoning_summary": "The candidate appears to be a strong adjacent fit based on skills, tools, and project experience."
             })
+        
+        if "You are a ReAct-style job application assistant agent" in prompt:
+            if "No previous observations" in prompt:
+                return """
+        {
+        "thought": "The user wants to analyze the default sample job first.",
+        "action": "analyze_job",
+        "action_input": {
+            "jd_path": "data/sample_jd.txt",
+            "profile_path": "data/candidate_profile.example.json",
+            "use_mock_llm": true,
+            "use_llm_jd_parser": false,
+            "use_llm_matcher": false,
+            "generate_cover_letter": false,
+            "generate_linkedin_message": false,
+            "generate_resume_bullets": false,
+            "save_application": true
+        }
+        }
+        """
+            else:
+                return """
+        {
+        "thought": "The job has been analyzed, so I can now provide the final answer.",
+        "final_answer": "The sample job has been analyzed and saved. Based on the match result, it appears to be a relevant fit. Review the generated match report for details."
+        }
+        """
+            
         return "This is a mock LLM response generated from the provided prompt."
 
 
