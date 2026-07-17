@@ -1,9 +1,12 @@
 import typer
 from rich.console import Console
 from rich.table import Table
+from rich.panel import Panel
+import json
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
+from src.workflows.react_workflow import run_react_workflow
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.application_retriever import ApplicationRetriever
 
@@ -144,6 +147,65 @@ def ask_memory(
     )
     print(answers['answer'])
     # print(answers['retrieved_results'])
+
+@app.command()
+def agent(
+    request: str = typer.Argument(..., help="Natural-language request for the ReAct agent."),
+    use_mock_llm: bool = typer.Option(False, help="Use mock LLM instead of real LLM."),
+    max_steps: int = typer.Option(5, help="Maximum number of ReAct tool-calling steps."),
+    default_jd_path: str = typer.Option("data/sample_jd.txt", help="Default job description path."),
+    default_profile_path: str = typer.Option("data/candidate_profile.example.json", help="Default candidate profile path."),
+    default_tracker_path: str = typer.Option("data/applications.json", help="Default application tracker path."),
+    default_retrieval_mode: str = typer.Option("chroma", help="Default retrieval mode: keyword, embedding, or chroma."),
+):
+    """Run the ReAct-style job application agent."""
+    result = run_react_workflow(
+        user_request=request,
+        use_mock_llm=use_mock_llm,
+        max_steps=max_steps,
+        default_jd_path=default_jd_path,
+        default_profile_path=default_profile_path,
+        default_tracker_path=default_tracker_path,
+        default_retrieval_mode=default_retrieval_mode,
+    )
+
+    console = Console()
+
+    # console.print("\n[bold green]Final Answer[/bold green]")
+    # console.print(result.get("final_answer", ""))
+
+    # console.print("\n[bold cyan]Tool Trace[/bold cyan]")
+    # for i, obs in enumerate(result.get("observations", []), start=1):
+    #     console.print(f"\n[bold]Step {i}[/bold]")
+    #     console.print(f"[yellow]Thought:[/yellow] {obs.get('thought', '')}")
+    #     console.print(f"[yellow]Action:[/yellow] {obs.get('action', '')}")
+    #     console.print(f"[yellow]Action Input:[/yellow] {obs.get('action_input', {})}")
+    #     console.print(f"[yellow]Observation:[/yellow] {obs.get('observation', {})}")
+
+    # console.print(f"\n[bold]Steps used:[/bold] {result.get('steps_used', 'unknown')}")
+    console.print(Panel(result.get("final_answer", ""), title="Final Answer"))
+
+    table = Table(title="ReAct Tool Trace")
+    table.add_column("Step")
+    table.add_column("Action")
+    table.add_column("Thought")
+    table.add_column("Observation Summary")
+
+    for i, obs in enumerate(result.get("observations", []), start=1):
+        observation_text = json.dumps(
+            obs.get("observation", {}),
+            indent=2,
+            default=str,
+        )
+
+        table.add_row(
+            str(i),
+            obs.get("action", ""),
+            obs.get("thought", ""),
+            observation_text[:500],
+        )
+
+    console.print(table)
 
 if __name__ == "__main__":
     app()
