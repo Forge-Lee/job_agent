@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-from src.tools.react_tools import TOOL_REGISTRY
 from src.agents.jd_parser import parse_llm_json_response
 from src.tools.react_tools import ToolExecutor
 
