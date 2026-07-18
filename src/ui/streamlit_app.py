@@ -4,6 +4,7 @@ from pathlib import Path
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
+from src.workflows.react_workflow import run_react_workflow
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.profile_manager import parse_comma_list, save_user_profile, list_saved_profiles
 
@@ -15,11 +16,12 @@ st.set_page_config(
 st.title("AI Job Application Assistant")
 st.caption("JD analysis, application tracking, and RAG-based application memory.")
 
-tab_analysis, tab_tracker, tab_memory, tab_profile = st.tabs([
+tab_analysis, tab_tracker, tab_memory, tab_profile, tab_agent = st.tabs([
     "Job Analysis",
     "Application Tracker",
     "Application Memory",
-    "User Profile"
+    "User Profile",
+    "Agent"
 ])
 
 with tab_analysis:
@@ -406,3 +408,68 @@ with tab_profile:
         profile_path = save_user_profile(profile_name, profile)
         st.success(f"Profile saved to {profile_path}")
         st.json(profile)
+
+with tab_agent:
+    st.header("ReAct Job Application Agent")
+
+    user_input = st.text_area(
+        "Agent request",
+        height = 150,
+        value=(
+            "Analyze the sample job using the default candidate profile, "
+            "save the application, then summarize whether it is a strong fit."
+        ),
+    )
+
+    use_mock_llm = st.checkbox("Use mock LLM", value=True, key=1)
+    max_steps = st.number_input("Max ReAct steps", min_value=3, max_value=20, value=5)
+    default_jd_path = st.text_input("Specify your job description path here if needed.", value="data/sample_jd.txt")
+    default_profile_path = st.text_input("Specify your profile path here if needed.", value="data/candidate_profile.example.json")
+    default_tracker_path = st.text_input("Specify your application tracker path here if needed.", value="data/applications.json")
+    default_retrieval_mode = st.selectbox(
+        "Retrieval mode",
+        ["keyword", "embedding", "chroma"],
+        key = 2
+    )
+
+    if st.button("Run Agent"):
+        try:
+            with st.spinner("Running ReAct reasoning loop..."):
+                result = run_react_workflow(
+                    user_request=user_input,
+                    use_mock_llm=use_mock_llm,
+                    max_steps=max_steps,
+                    default_jd_path=default_jd_path ,
+                    default_profile_path=default_profile_path,
+                    default_tracker_path=default_tracker_path,
+                    default_retrieval_mode=default_retrieval_mode
+                )
+            
+            st.session_state["ReAct_result"] = result
+
+            st.success("Agent reasoning completed.")
+        
+        except Exception as e:
+            st.error("ReAct Loop failed.")
+            st.exception(e)
+
+    if "ReAct_result" in st.session_state:
+        rea_result = st.session_state["ReAct_result"]
+        st.subheader("Final Answer")
+        st.markdown(rea_result.get("final_answer", ""))
+
+        all_observations = rea_result["observations"]
+        st.subheader("ReAct Step Tracking")
+        curr_step = 1
+        for obs in all_observations:
+            act = obs["action"]
+            with st.expander(f"Step {curr_step}: {act}"):
+                st.markdown("**Thought**")
+                st.write(obs.get("thought", ""))
+
+                st.markdown("**Action Input**")
+                st.json(obs.get("action_input", {}))
+
+                st.markdown("**Observation**")
+                st.json(obs.get("observation", {}))
+            curr_step += 1
