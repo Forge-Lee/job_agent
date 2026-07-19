@@ -10,6 +10,9 @@ def run_react_workflow(
     default_profile_path: str = "data/candidate_profile.example.json",
     default_tracker_path: str = "data/applications.json",
     default_retrieval_mode: str = "chroma",
+    default_use_llm_jd_parser: bool = True,
+    default_use_llm_matcher: bool = True,
+    default_use_mock_embedding: bool = False,
 ) -> dict:
     if use_mock_llm:
         llm_client = MockLLMClient()
@@ -21,6 +24,9 @@ def run_react_workflow(
         "default_profile_path": default_profile_path,
         "default_tracker_path": default_tracker_path,
         "default_retrieval_mode": default_retrieval_mode,
+        "default_use_llm_jd_parser": default_use_llm_jd_parser,
+        "default_use_llm_matcher": default_use_llm_matcher,
+        "default_use_mock_embedding": default_use_mock_embedding,
     }
 
     agent = ReActAgent(
