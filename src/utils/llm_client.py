@@ -45,6 +45,15 @@ class MockLLMClient:
         }
         """
             
+        if "You are a reflection and verification agent" in prompt:
+            return """
+        {
+        "passed": true,
+        "issues": [],
+        "revised_answer": "The draft final answer is supported by the tool observations."
+        }
+        """
+            
         return "This is a mock LLM response generated from the provided prompt."
 
 

@@ -1,10 +1,14 @@
 from src.agents.react_agent import ReActAgent
 from src.utils.llm_client import MockLLMClient, OpenAIClient
-
+from src.agents.reflection_agent import ReflectionAgent
 
 def run_react_workflow(
     user_request: str,
     use_mock_llm: bool = True,
+    use_langchain_reflection: bool = True,
+    enable_reflection: bool = True,
+    reflection_model_name: str = "gpt-4o-mini",
+    provider: str = "openai",
     max_steps: int = 3,
     default_jd_path: str = "data/sample_jd.txt",
     default_profile_path: str = "data/candidate_profile.example.json",
@@ -37,16 +41,23 @@ def run_react_workflow(
 
     react_result = agent.run(user_request)
 
-    reflection_result = reflection_agent.reflect(
-        user_request=user_request,
-        final_answer=react_result["final_answer"],
-        observations=react_result["observations"],
-        completed_actions=react_result["completed_actions"],
-    )
+    if enable_reflection:
+        reflection_agent = ReflectionAgent(
+            llm_client=llm_client,
+            use_langchain=use_langchain_reflection,
+            model_name=reflection_model_name,
+            provider=provider
+        )
+        reflection_result = reflection_agent.reflect(
+            user_request=user_request,
+            final_answer=react_result["final_answer"],
+            observations=react_result["observations"],
+            completed_actions=react_result["completed_actions"],
+        )
 
-    react_result["reflection"] = reflection_result
+        react_result["reflection"] = reflection_result.model_dump()
 
-    if not reflection_result["passed"]:
-        react_result["final_answer"] = reflection_result["revised_answer"]
+        if not reflection_result.passed:
+            react_result["final_answer"] = reflection_result.revised_answer
 
     return react_result

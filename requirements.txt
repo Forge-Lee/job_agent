@@ -9,3 +9,4 @@ pandas
 chromadb
 langchain
 langchain-openai
+langchain-google-genai

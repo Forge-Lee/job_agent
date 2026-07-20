@@ -3,6 +3,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 import json
+import os
+from dotenv import load_dotenv
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
@@ -152,6 +154,10 @@ def ask_memory(
 def agent(
     request: str = typer.Argument(..., help="Natural-language request for the ReAct agent."),
     use_mock_llm: bool = typer.Option(False, help="Use mock LLM instead of real LLM."),
+    use_langchain_reflection: bool = typer.Option(True, help="Use LangChain for the reflection step."),
+    enable_reflection: bool = typer.Option(True, help="Enable the reflection steps of the ReAct loop"),
+    reflection_model_name: str | None = typer.Option(None, help="Model used for the reflection step. If omitted, read from .env."),
+    reflection_provider: str | None = typer.Option(None, help="Reflection provider: openai or gemini. If omitted, read REFLECTION_PROVIDER from .env."),
     max_steps: int = typer.Option(5, help="Maximum number of ReAct tool-calling steps."),
     default_jd_path: str = typer.Option("data/sample_jd.txt", help="Default job description path."),
     default_profile_path: str = typer.Option("data/candidate_profile.example.json", help="Default candidate profile path."),
@@ -159,9 +165,27 @@ def agent(
     default_retrieval_mode: str = typer.Option("chroma", help="Default retrieval mode: keyword, embedding, or chroma."),
 ):
     """Run the ReAct-style job application agent."""
+
+    load_dotenv()
+    resolved_reflection_provider = (
+        reflection_provider
+        or os.getenv("REFLECTION_PROVIDER")
+        or "openai"
+    )
+    resolved_reflection_model_name = (
+        reflection_model_name
+        or os.getenv("REFLECTION_MODEL_NAME")
+        or os.getenv("MODEL_NAME")
+        or ("gemini-1.5-flash" if resolved_reflection_provider == "gemini" else "gpt-4o-mini")
+    )
+
     result = run_react_workflow(
         user_request=request,
         use_mock_llm=use_mock_llm,
+        use_langchain_reflection=use_langchain_reflection,
+        enable_reflection=enable_reflection,
+        reflection_model_name=resolved_reflection_model_name,
+        provider=resolved_reflection_provider,
         max_steps=max_steps,
         default_jd_path=default_jd_path,
         default_profile_path=default_profile_path,
@@ -171,18 +195,7 @@ def agent(
 
     console = Console()
 
-    # console.print("\n[bold green]Final Answer[/bold green]")
-    # console.print(result.get("final_answer", ""))
-
-    # console.print("\n[bold cyan]Tool Trace[/bold cyan]")
-    # for i, obs in enumerate(result.get("observations", []), start=1):
-    #     console.print(f"\n[bold]Step {i}[/bold]")
-    #     console.print(f"[yellow]Thought:[/yellow] {obs.get('thought', '')}")
-    #     console.print(f"[yellow]Action:[/yellow] {obs.get('action', '')}")
-    #     console.print(f"[yellow]Action Input:[/yellow] {obs.get('action_input', {})}")
-    #     console.print(f"[yellow]Observation:[/yellow] {obs.get('observation', {})}")
-
-    # console.print(f"\n[bold]Steps used:[/bold] {result.get('steps_used', 'unknown')}")
+    console.print(f"[dim]Reflection model: {resolved_reflection_model_name}[/dim]")
     console.print(Panel(result.get("final_answer", ""), title="Final Answer"))
 
     table = Table(title="ReAct Tool Trace")

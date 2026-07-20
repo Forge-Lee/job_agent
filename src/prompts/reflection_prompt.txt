@@ -23,3 +23,12 @@ Tool observations:
 
 Draft final answer:
 {final_answer}
+
+Return only valid JSON matching this schema:
+{{
+  "passed": true,
+  "issues": [],
+  "revised_answer": "string"
+}}
+
+Do not wrap the JSON in markdown code fences.
