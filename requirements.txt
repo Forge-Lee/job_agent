@@ -10,3 +10,5 @@ chromadb
 langchain
 langchain-openai
 langchain-google-genai
+pypdf
+python-docx
