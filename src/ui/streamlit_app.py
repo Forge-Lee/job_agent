@@ -421,7 +421,9 @@ with tab_agent:
         ),
     )
 
-    use_mock_llm = st.checkbox("Use mock LLM", value=True, key=1)
+    use_mock_llm = st.checkbox("Use mock LLM for ReAct loop", value=False, key="agent_use_mock_llm")
+    enable_reflection = st.checkbox("Enable the reflection step.", value=True)
+    use_langchain_reflection = st.checkbox("Use LangChain for reflection step", value=True, disabled=not enable_reflection)
     max_steps = st.number_input("Max ReAct steps", min_value=3, max_value=20, value=5)
     default_jd_path = st.text_input("Specify your job description path here if needed.", value="data/sample_jd.txt")
     default_profile_path = st.text_input("Specify your profile path here if needed.", value="data/candidate_profile.example.json")
@@ -429,7 +431,24 @@ with tab_agent:
     default_retrieval_mode = st.selectbox(
         "Retrieval mode",
         ["keyword", "embedding", "chroma"],
-        key = 2
+        key = "agent_retrieval_mode"
+    )
+    default_reflection_provider = st.selectbox(
+        "Reflection Provider",
+        ["openai", "gemini"],
+        disabled=not enable_reflection or not use_langchain_reflection,
+    )
+
+    default_model_name = (
+        "gpt-4o-mini"
+        if default_reflection_provider == "openai"
+        else "gemini-3.5-flash"
+    )
+
+    reflection_model_name = st.text_input(
+        "Reflection model name",
+        value=default_model_name,
+        disabled=not enable_reflection,
     )
 
     if st.button("Run Agent"):
@@ -438,6 +457,10 @@ with tab_agent:
                 result = run_react_workflow(
                     user_request=user_input,
                     use_mock_llm=use_mock_llm,
+                    use_langchain_reflection=use_langchain_reflection,
+                    enable_reflection=enable_reflection,
+                    reflection_model_name=reflection_model_name ,
+                    provider=default_reflection_provider,
                     max_steps=max_steps,
                     default_jd_path=default_jd_path ,
                     default_profile_path=default_profile_path,
@@ -473,3 +496,7 @@ with tab_agent:
                 st.markdown("**Observation**")
                 st.json(obs.get("observation", {}))
             curr_step += 1
+        
+        if "reflection" in rea_result:
+            with st.expander("Reflection / Self-Critique", expanded=False):
+                st.json(rea_result["reflection"])
