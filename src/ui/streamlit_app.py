@@ -5,6 +5,7 @@ from pathlib import Path
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
 from src.workflows.react_workflow import run_react_workflow
+from src.workflows.resume_profile_workflow import run_resume_profile_workflow
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.profile_manager import parse_comma_list, save_user_profile, list_saved_profiles
 
@@ -274,6 +275,91 @@ with tab_profile:
                 "details": "Graduate student focusing on machine learning, computer vision, and AI systems.",
             }
         ]
+    st.subheader("Build Profile from Resume")
+
+    uploaded_resume = st.file_uploader(
+        "Upload resume",
+        type=["pdf", "docx"],
+    )
+
+    resume_profile_name = st.text_input(
+        "Output profile name",
+        value="resume_profile_from_input",
+    )
+
+    use_mock_resume_llm = st.checkbox(
+        "Use mock LLM for resume parsing",
+        value=True,
+    )
+
+    safe_profile_name = resume_profile_name.strip().replace(" ", "_")
+
+    if not safe_profile_name:
+        safe_profile_name = "resume_profile"
+
+    if not safe_profile_name.endswith(".json"):
+        safe_profile_name += ".json"
+
+    output_profile_path = f"data/profiles/{safe_profile_name}"
+
+    if st.button("Parse Resume"):
+        try:
+            if uploaded_resume is None:
+                st.error("Please upload a resume file first.")
+            else:
+                with st.spinner("Parsing resume..."):
+                    # save file
+                    resume_upload_dir = Path("data/uploads/resumes")
+                    resume_upload_dir.mkdir(parents=True, exist_ok=True)
+
+                    resume_path = resume_upload_dir / uploaded_resume.name
+                    resume_path.write_bytes(uploaded_resume.getbuffer())
+                    # call workflow
+                    parsed_resume = run_resume_profile_workflow(
+                        resume_path=str(resume_path),
+                        output_profile_path=output_profile_path,
+                        use_mock_llm=use_mock_resume_llm,
+                    )
+
+                    # save session_state
+                    st.session_state["resume_profile_result"] = parsed_resume
+                    # parsed_profile = parsed_resume.get("profile", {})
+                    # skills = parsed_profile.get("skills", {})
+
+                    # profile = {
+                    #     "education": parsed_profile.get('education', []),
+                    #     "skills": {
+                    #         "programming": parse_comma_list(skills.get('programming', [])),
+                    #         "machine_learning": parse_comma_list(skills.get('machine_learning', [])),
+                    #         "tools": parse_comma_list(skills.get('tools', [])),
+                    #         "domains": parse_comma_list(skills.get('domains', [])),
+                    #         "other": parse_comma_list(skills.get('other', [])),
+                    #     },
+                    #     "projects": parsed_profile.get('projects', []),
+                    # }
+
+                    # profile_path = save_user_profile(safe_profile_name, profile)
+                    # st.success(f"Profile saved to {profile_path}")
+                    # st.json(profile)
+
+                st.success("Resume profile generated.")
+        except Exception as e:
+            st.error("Resume parsing failed.")
+            st.exception(e)
+
+    if "resume_profile_result" in st.session_state:
+        result = st.session_state["resume_profile_result"]
+
+        st.subheader("Parsed Resume Profile")
+        st.write(f"Profile saved to: {result.get('profile_path', '')}")
+        st.json(result.get("profile", {}))
+
+        with st.expander("Resume Text Preview"):
+            st.text(result.get("resume_text_preview", ""))
+
+    st.divider()
+
+    st.subheader("Build Profile from Input")
 
     profile_name = st.text_input("Profile name", value="default_profile")
 
