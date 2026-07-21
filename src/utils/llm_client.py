@@ -53,6 +53,32 @@ class MockLLMClient:
         "revised_answer": "The draft final answer is supported by the tool observations."
         }
         """
+        if "You are a resume parsing assistant." in prompt:
+            return """
+        {
+            "education": [
+                {
+                "school": "Example University",
+                "degree": "M.S. in Electrical and Computer Engineering",
+                "details": "Focus on machine learning, computer vision, and AI systems."
+                }
+            ],
+            "skills": {
+                "programming": ["Python", "C++"],
+                "machine_learning": ["Machine Learning", "Computer Vision", "LLM", "RAG"],
+                "tools": ["PyTorch", "OpenCV", "Streamlit", "Docker"],
+                "domains": ["AI Agents", "Robotics"],
+                "other": []
+            },
+            "projects": [
+                {
+                "name": "AI Job Application Assistant",
+                "description": "Built an AI-powered job application assistant with JD parsing, matching, RAG memory, and ReAct workflow.",
+                "keywords": ["LLM", "RAG", "ReAct", "Streamlit"]
+                }
+            ]
+            }
+            """
             
         return "This is a mock LLM response generated from the provided prompt."
 

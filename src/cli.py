@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
 from src.workflows.react_workflow import run_react_workflow
+from src.workflows.resume_profile_workflow import run_resume_profile_workflow
 from src.tools.application_tracker import ApplicationTracker
 from src.tools.application_retriever import ApplicationRetriever
 
@@ -219,6 +220,34 @@ def agent(
         )
 
     console.print(table)
+
+@app.command()
+def parse_resume(
+    resume_path: str = typer.Argument(..., help="Your path to your resume."),
+    output_profile_path: str = typer.Option("data/profiles/resume_profile.json", help="Customize your parsed profile output path"),
+    use_mock_llm: bool = typer.Option(True, help='Use MOCKLLM placeholder or real LLM API'),
+):
+    parsed_resume = run_resume_profile_workflow(
+        resume_path=resume_path,
+        output_profile_path=output_profile_path,
+        use_mock_llm=use_mock_llm
+    )
+
+    console = Console()
+
+    profile = parsed_resume.get("profile", {})
+    skills = profile.get("skills", {})
+
+    console.print(Panel(f"Profile saved to: {output_profile_path}."))
+    console.print(f"Education Entries: {profile.get('education', [])}")
+    console.print(f"Projects: {profile.get('projects', [])}")
+    console.print("Skills:")
+    console.print(f"    Programming: {', '.join(skills.get('programming', []))}")
+    console.print(f"    ML/AI: {', '.join(skills.get('machine_learning', []))}")
+    console.print(f"    Tools: {', '.join(skills.get('tools', []))}")
+    console.print(f"    Domains: {', '.join(skills.get('domains', []))}")
+    console.print(f"    Other: {', '.join(skills.get('other', []))}")
+    console.print(f"Resume text preview: {parsed_resume.get('resume_text_preview', '')}")
 
 if __name__ == "__main__":
     app()

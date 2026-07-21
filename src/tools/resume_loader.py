@@ -35,12 +35,19 @@ def load_resume_text(resume_path: str) -> str:
     suffix = path.suffix.lower()
 
     if suffix == ".pdf":
-        return extract_text_from_pdf(path)
+        text = extract_text_from_pdf(path)
 
-    if suffix == ".docx":
-        return extract_text_from_docx(path)
+    elif suffix == ".docx":
+        text = extract_text_from_docx(path)
 
-    if suffix == ".txt":
-        return path.read_text(encoding="utf-8")
+    elif suffix == ".txt":
+        text = path.read_text(encoding="utf-8")
 
-    raise ValueError(f"Unsupported resume file type: {suffix}")
+    else:
+        raise ValueError(f"Unsupported resume file type: {suffix}")
+    
+    if len(text.strip()) < 100:
+        raise ValueError(
+            "Extracted resume text is too short. The file may be scanned, image-based, or unreadable."
+        )
+    return text

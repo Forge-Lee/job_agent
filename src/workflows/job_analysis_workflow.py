@@ -61,9 +61,6 @@ def run_job_analysis(
         print()
 
     # 2. Parse JD
-    # parser = JDParser()
-    # parsed_jd = parser.parse(job_description)
-
     llm_client = MockLLMClient()
 
     needs_llm = (

@@ -35,33 +35,6 @@ def extract_line_after_prefix(text: list[str], prefix = 'Company: ') -> str:
     else:
         return 'not specified'
 
-# def extract_section_items(
-#     text: list[str],
-#     start_heading: str,
-#     end_headings: list[str]
-# ) -> list[str]:
-#     res = []
-#     record = False
-#     for line in text:
-#         if start_heading in line:
-#             record = True
-#             continue
-#         if not record:
-#             continue
-#         if line.strip() not in end_headings:
-#             # remove bullet
-#             if line.startswith('-'):
-#                 item = line.lstrip("-").strip()
-#                 if item:
-#                     res.append(item)
-#             continue
-#         record = False
-#         break
-#     if res != []:
-#         return res
-#     else:
-#         return []
-
 def extract_section_items(
     text: list[str],
     start_headings: list[str],
@@ -246,12 +219,6 @@ class JDParser:
 
         if self.role == "not specified":
             self.role = infer_role_from_lines(self.lines)
-
-        # self.responsibility = extract_section_items(
-        #     self.lines, 
-        #     "Responsibilities:", 
-        #     ["Required Qualifications:", "Preferred Qualifications:", "Internship Details:"]
-        # )
 
         self.responsibility = extract_section_items(
             self.lines,

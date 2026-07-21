@@ -3,29 +3,29 @@ You are a resume parsing assistant.
 Extract a structured candidate profile from the resume text.
 
 Return only valid JSON matching this schema:
-{
+{{
   "education": [
-    {
+    {{
       "school": "string",
       "degree": "string",
       "details": "string"
-    }
+    }}
   ],
-  "skills": {
+  "skills": {{
     "programming": ["string"],
     "machine_learning": ["string"],
     "tools": ["string"],
     "domains": ["string"],
     "other": ["string"]
-  },
+  }},
   "projects": [
-    {
+    {{
       "name": "string",
       "description": "string",
       "keywords": ["string"]
-    }
+    }}
   ]
-}
+}}
 
 Rules:
 - Do not invent skills, schools, degrees, or projects.
