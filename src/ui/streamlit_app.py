@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
 
 from src.workflows.job_analysis_workflow import run_job_analysis
 from src.workflows.application_memory_workflow import run_application_memory_query
@@ -130,10 +131,10 @@ with tab_analysis:
             st.metric("Match Score", match_result.match_score)
 
         with col2:
-            st.metric("Required Skills Matched", len(match_result.matched_required_skills))
+            st.metric("Rule-based Required Matches", len(match_result.matched_required_skills))
 
         with col3:
-            st.metric("Missing Required Skills", len(match_result.missing_required_skills))
+            st.metric("Rule-based Missing Required", len(match_result.missing_required_skills))
 
         st.markdown(f"**Company:** {parsed_jd.company}")
         st.markdown(f"**Role:** {parsed_jd.role}")
@@ -275,6 +276,10 @@ with tab_profile:
                 "details": "Graduate student focusing on machine learning, computer vision, and AI systems.",
             }
         ]
+
+    if st.session_state.pop("resume_profile_just_generated", False):
+        st.success("Resume profile generated and saved profile list refreshed.")
+
     st.subheader("Build Profile from Resume")
 
     uploaded_resume = st.file_uploader(
@@ -323,24 +328,10 @@ with tab_profile:
 
                     # save session_state
                     st.session_state["resume_profile_result"] = parsed_resume
-                    # parsed_profile = parsed_resume.get("profile", {})
-                    # skills = parsed_profile.get("skills", {})
 
-                    # profile = {
-                    #     "education": parsed_profile.get('education', []),
-                    #     "skills": {
-                    #         "programming": parse_comma_list(skills.get('programming', [])),
-                    #         "machine_learning": parse_comma_list(skills.get('machine_learning', [])),
-                    #         "tools": parse_comma_list(skills.get('tools', [])),
-                    #         "domains": parse_comma_list(skills.get('domains', [])),
-                    #         "other": parse_comma_list(skills.get('other', [])),
-                    #     },
-                    #     "projects": parsed_profile.get('projects', []),
-                    # }
-
-                    # profile_path = save_user_profile(safe_profile_name, profile)
-                    # st.success(f"Profile saved to {profile_path}")
-                    # st.json(profile)
+                    st.session_state["resume_profile_just_generated"] = True
+                    st.session_state["latest_profile_path"] = output_profile_path
+                    st.rerun()
 
                 st.success("Resume profile generated.")
         except Exception as e:
@@ -507,12 +498,81 @@ with tab_agent:
         ),
     )
 
+    st.subheader("Execution Settings")
+
     use_mock_llm = st.checkbox("Use mock LLM for ReAct loop", value=False, key="agent_use_mock_llm")
     enable_reflection = st.checkbox("Enable the reflection step.", value=True)
     use_langchain_reflection = st.checkbox("Use LangChain for reflection step", value=True, disabled=not enable_reflection)
     max_steps = st.number_input("Max ReAct steps", min_value=3, max_value=20, value=5)
-    default_jd_path = st.text_input("Specify your job description path here if needed.", value="data/sample_jd.txt")
-    default_profile_path = st.text_input("Specify your profile path here if needed.", value="data/candidate_profile.example.json")
+
+    st.subheader("Runtime Context")
+
+    agent_jd_input_mode = st.radio(
+        "Agent JD input mode",
+        ["Use local path", "Paste JD text"],
+        key="agent_jd_input_mode",
+    )
+
+    if agent_jd_input_mode == "Use local path":
+        default_jd_path = st.text_input(
+            "Default job description for the agent to analyze",
+            value="data/sample_jd.txt",
+            key="agent_jd_path_input",
+        )
+
+    else:
+        agent_jd_text = st.text_area(
+            "Paste a new job description for the agent to analyze",
+            height=250,
+            placeholder="Paste the full job description here...",
+            key="agent_pasted_jd_text",
+        )
+
+        if agent_jd_text.strip():
+            agent_upload_dir = Path("data/uploads")
+            agent_upload_dir.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            agent_jd_path = agent_upload_dir / f"agent_pasted_jd_{timestamp}.txt"
+            agent_jd_path.write_text(agent_jd_text, encoding="utf-8")
+
+            default_jd_path = str(agent_jd_path)
+        else:
+            default_jd_path = "data/sample_jd.txt"
+            st.info("Paste a JD or the agent will use the default sample JD.")
+
+    agent_profile_input_mode = st.radio(
+        "Agent profile input mode",
+        ["Use saved profile", "Use local path"],
+        key="agent_profile_input_mode",
+    )
+
+    if agent_profile_input_mode == "Use saved profile":
+        saved_profiles = list_saved_profiles()
+
+        if saved_profiles:
+            latest_profile_path = st.session_state.get("latest_profile_path")
+            default_index = 0
+
+            if latest_profile_path in saved_profiles:
+                default_index = saved_profiles.index(latest_profile_path)
+
+            default_profile_path = st.selectbox(
+                "Select profile for agent",
+                saved_profiles,
+                index=default_index,
+                key="agent_saved_profile_select",
+            )
+        else:
+            st.warning("No saved profiles found. Please create one in the User Profile tab.")
+            default_profile_path = "data/candidate_profile.example.json"
+    else:
+        default_profile_path = st.text_input(
+            "Specify your profile path here if needed.",
+            value="data/candidate_profile.example.json",
+            key="agent_profile_path_input",
+        )
+
     default_tracker_path = st.text_input("Specify your application tracker path here if needed.", value="data/applications.json")
     default_retrieval_mode = st.selectbox(
         "Retrieval mode",

@@ -15,6 +15,8 @@ class MockEmbeddingClient:
 
     def __init__(self, dimension: int = 64):
         self.dimension = dimension
+        self.provider = "mock"
+        self.model_name = "mock"
 
     def embed_text(self, text: str) -> list[float]:
         seed = int(hashlib.md5(text.encode("utf-8")).hexdigest(), 16) % (2**32)
@@ -39,7 +41,8 @@ class OpenAIEmbeddingClient:
 
         self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.model_name = os.getenv("EMBEDDING_MODEL_NAME", "gpt-4o-mini")
-
+        self.provider = "gemini"
+        self.dimension = 3072
 
     def embed_text(self, text: str) -> list[float]:
         """

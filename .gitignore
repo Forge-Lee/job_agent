@@ -32,6 +32,8 @@ data/resumes/*
 timeline.txt
 job_agent_optimization_timeline.md
 job_agent_optimization_timeline.pdf
+docs/ai_job_agent_final_test_checklist.pdf
+docs/ai_job_agent_final_test_checklist_edited.pdf
 
 # IDE
 .vscode/

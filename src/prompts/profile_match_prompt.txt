@@ -4,8 +4,9 @@ Evaluate how well the candidate profile fits the parsed job description.
 
 Use only the provided candidate profile and rule-based match result.
 Do not invent experience, skills, internships, publications, metrics, or tools.
-If evidence is missing, state it clearly as a gap.
-Be strict but fair.
+Be strict but fair, but do not treat indirect evidence as missing.
+If a requirement is reasonably supported by a project, research experience, or related tool, classify it as partial evidence instead of a gap.
+Only mark something as a gap when there is no explicit or reasonable indirect evidence.
 
 Return only valid JSON with this structure:
 {{
@@ -13,11 +14,22 @@ Return only valid JSON with this structure:
   "llm_strengths": [
     "..."
   ],
+  "llm_partial_matches": [
+    "..."
+  ],
   "llm_gaps": [
+    "..."
+  ],
+  "llm_positioning_improvements": [
     "..."
   ],
   "llm_reasoning_summary": "..."
 }}
+
+Evidence classification rules:
+- Strong evidence: the candidate profile explicitly mentions the skill, tool, project, or requirement.
+- Partial evidence: the candidate profile does not use the exact wording, but a project, research experience, or related tool reasonably supports the requirement.
+- Gap: no explicit or reasonable indirect evidence appears in the candidate profile.
 
 Scoring guidance:
 - 0.9 to 1.0: Very strong fit with direct evidence for most core requirements.

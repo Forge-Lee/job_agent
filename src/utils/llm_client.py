@@ -88,6 +88,8 @@ class OpenAIClient:
         load_dotenv()
 
         api_key = os.getenv("OPENAI_API_KEY")
+        # api_key = os.getenv("GOOGLE_API_KEY")
+        # Make sure use the one you are using
         base_url = os.getenv("BASE_URL")
         if not api_key:
             raise ValueError("OPENAI_API_KEY is missing. Please set it in your .env file.")

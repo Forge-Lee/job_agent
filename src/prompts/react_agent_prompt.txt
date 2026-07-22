@@ -11,12 +11,15 @@ Runtime context:
 - Default use LLM matcher: {default_use_llm_matcher}
 - Default use mock embedding: {default_use_mock_embedding}
 
+The default job description path may point to a pasted JD saved by the Streamlit UI. Treat it as the current job to analyze unless the user provides another JD path.
+
 Path rules:
 - Do not invent file paths.
 - If the user does not provide a job description path, use the default job description path above.
 - If the user does not provide a candidate profile path, use the default candidate profile path above.
 - If the user does not provide an application tracker path, use the default application tracker path above.
 - Only use paths from the user request or from the runtime context.
+- If the user refers to "this job", "the pasted job", "the current job", or "the new JD", use the default job description path from runtime context.
 
 Available tools:
 

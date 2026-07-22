@@ -3,6 +3,27 @@ from pathlib import Path
 import json
 
 import chromadb
+import re
+
+
+def sanitize_collection_part(value: str) -> str:
+    value = str(value).lower()
+    value = re.sub(r"[^a-z0-9]+", "_", value)
+    value = value.strip("_")
+    return value or "unknown"
+
+
+def build_chroma_collection_name(
+    base_name: str,
+    provider: str,
+    model_name: str,
+    embedding_dim: int | str,
+) -> str:
+    provider = sanitize_collection_part(provider)
+    model_name = sanitize_collection_part(model_name)
+    embedding_dim = sanitize_collection_part(embedding_dim)
+
+    return f"{base_name}_{provider}_{model_name}_{embedding_dim}"
 
 class ChromaApplicationRetriever:
     def __init__(

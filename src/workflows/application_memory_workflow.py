@@ -3,7 +3,7 @@ from src.tools.application_retriever import ApplicationRetriever
 from src.agents.application_memory_agent import ApplicationMemoryAgent
 from src.tools.embedding_application_retriever import EmbeddingApplicationRetriever
 from src.utils.embedding_client import MockEmbeddingClient, OpenAIEmbeddingClient
-from src.tools.chroma_application_retriever import ChromaApplicationRetriever
+from src.tools.chroma_application_retriever import ChromaApplicationRetriever, build_chroma_collection_name
 
 def run_application_memory_query(
     query: str,
@@ -43,9 +43,17 @@ def run_application_memory_query(
         else:
             embedding_client = OpenAIEmbeddingClient()
 
+        collection_name = build_chroma_collection_name(
+            base_name="application_memory",
+            provider=embedding_client.provider,
+            model_name=embedding_client.model_name,
+            embedding_dim=embedding_client.dimension,
+        )
+
         retriever = ChromaApplicationRetriever(
             embedding_client=embedding_client,
             app_tracker_path=app_tracker_path,
+            collection_name=collection_name
         )
 
         retriever.load_records()

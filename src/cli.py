@@ -36,6 +36,7 @@ def analyze(
     use_llm_jd_parser: bool = typer.Option(False,help="Use LLM-based structured JD parsing."),
     save_application: bool = typer.Option(False, help='Save current application to application tracker or not')
 ):
+    """Run the job analysis workflow."""
     res = run_job_analysis(
         jd_path, 
         profile_path, 
@@ -60,6 +61,7 @@ def analyze(
 
 @app.command()
 def list_applications(app_tracker_path: str = typer.Option("data/applications.json", help='Customize your application memory path')):
+    '''List all the applications that stored.'''
     tracker = ApplicationTracker(app_tracker_path)
     current_apps = tracker.list_applications()
     if len(current_apps) == 0:
@@ -84,6 +86,7 @@ def update_status(
     new_status: str = typer.Argument(..., help="New application status."),
     app_tracker_path: str = typer.Option("data/applications.json", help='Customize your application memory path')
 ):
+    '''Update the job status stored in the memory.'''
     status_list = [
         'interested',
         'applied',
@@ -94,13 +97,14 @@ def update_status(
         'closed'
     ]
     tracker = ApplicationTracker(app_tracker_path)
+    console = Console()
     if new_status in status_list:
         tracker.update_status(app_id, new_status)
-        print("Application after update:\n")
-        print(tracker.find_application(app_id))
+        console.print("Application after update:\n")
+        console.print(tracker.find_application(app_id))
     else:
-        print('Invalid status, please choose a status from\n')
-        print('interested, applied, followed_up, interviewing, rejected, offer, and closed')
+        console.print('Invalid status, please choose a status from\n')
+        console.print('interested, applied, followed_up, interviewing, rejected, offer, and closed')
 
 @app.command()
 def search_applications(
@@ -108,6 +112,7 @@ def search_applications(
     top_k: int = typer.Option(3, help="Return the top-k application records related to the query."),
     app_tracker_path: str = typer.Option("data/applications.json", help="Path to the application tracker JSON file.")
 ):
+    '''Search for a certain application stored in the memory'''
     retriever = ApplicationRetriever()
     retriever.load_records(app_tracker_path)
     retriever.build_documents()
@@ -140,6 +145,7 @@ def ask_memory(
     retrieval_mode: str = typer.Option("keyword", help="Retrieval mode: keyword, embedding, or chroma."),
     use_mock_embedding: bool = typer.Option(True, help="Use mock embedding client or real embedding API.")
 ):
+    """Run the RAG-based memory retrieval method."""
     answers = run_application_memory_query(
         query = query,
         use_mock_llm = use_mock_llm,
@@ -227,6 +233,7 @@ def parse_resume(
     output_profile_path: str = typer.Option("data/profiles/resume_profile.json", help="Customize your parsed profile output path"),
     use_mock_llm: bool = typer.Option(True, help='Use MOCKLLM placeholder or real LLM API'),
 ):
+    """Parse your resume for further analysis workflow."""
     parsed_resume = run_resume_profile_workflow(
         resume_path=resume_path,
         output_profile_path=output_profile_path,

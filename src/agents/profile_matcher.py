@@ -183,6 +183,24 @@ def parse_llm_json_response(response: str) -> dict:
 
     return json.loads(cleaned)
 
+def should_suppress_rule_gap(gap: str, llm_partial_matches: list[str]) -> bool:
+    gap_low = gap.lower()
+    partial_text = " ".join(llm_partial_matches).lower()
+
+    overlap_groups = [
+        ["api", "fastapi", "backend"],
+        ["debugging", "debug"],
+        ["software engineering", "software"],
+        ["working software", "working ai project", "project"],
+        ["evaluation", "testing", "experiment"],
+    ]
+
+    for group in overlap_groups:
+        if any(term in gap_low for term in group) and any(term in partial_text for term in group):
+            return True
+
+    return False
+
 class ProfileMatcher:
     def __init__(self, llm_client=None):
         self.llm_client = llm_client
@@ -237,7 +255,18 @@ class ProfileMatcher:
 
         relevant_projects = find_relevant_projects(parsed_jd, candidate_profile)
 
-        filtering_kws = ['degree', 'currently pursuing', 'communication', 'documentation']
+        filtering_kws = [
+            "degree",
+            "currently pursuing",
+            "communication",
+            "communicate",
+            "ask good questions",
+            "work independently",
+            "willingness",
+            "learn from failures",
+            "curiosity",
+            "documentation",
+        ]
         technical_required_skills = []
         technical_preferred_skills = []
         matched_technical_required_skills = []
@@ -337,9 +366,17 @@ class ProfileMatcher:
                 if not block:
                     gaps.append(f"Limited direct evidence for: {item}")
 
+        matched_domains_low = [d.lower() for d in matched_domains]
+        matched_tools_low = [t.lower() for t in matched_tools]
+
         if "computer vision" in matched_domains:
             positioning_summary = "Position the candidate as an applied AI / computer vision engineer with experience in image processing, ML workflows, and structured project execution."
-        elif "ai agents" in matched_domains or "LLM" in matched_tools:
+        elif (
+            "ai agents" in matched_domains_low 
+            or "llm" in matched_tools_low
+            or "large language model" in matched_domains_low
+            or "llm" in matched_tools_low
+        ):
             positioning_summary = "Position the candidate as an applied AI engineer interested in LLM-based workflows and agentic automation."
         else:
             positioning_summary = "Position the candidate around relevant ML engineering experience, project execution, and ability to learn domain-specific tools quickly."
@@ -386,7 +423,7 @@ class ProfileMatcher:
 
         return llm_result
 
-    def combine_results(self, rule_result, llm_result, rule_weight = 0.7, llm_weight = 0.3) -> MatchResult:
+    def combine_results(self, rule_result, llm_result, rule_weight = 0.5, llm_weight = 0.5) -> MatchResult:
         try:
             llm_score = float(llm_result.get("llm_score", rule_result.match_score))
         except (TypeError, ValueError):
@@ -402,15 +439,29 @@ class ProfileMatcher:
 
         llm_strengths = llm_result.get("llm_strengths", [])
         llm_gaps = llm_result.get("llm_gaps", [])
+        llm_partial_matches = llm_result.get("llm_partial_matches", [])
+        llm_positioning_improvements = llm_result.get("llm_positioning_improvements", [])
         llm_reasoning_summary = llm_result.get("llm_reasoning_summary", "")
 
         combined_strengths = list(rule_result.strengths)
         for strength in llm_strengths:
             combined_strengths.append(f"LLM semantic match: {strength}")
 
-        combined_gaps = list(rule_result.gaps)
-        for gap in llm_gaps:
-            combined_gaps.append(f"LLM semantic gap: {gap}")
+        for partial in llm_partial_matches:
+            combined_strengths.append(f"LLM partial evidence: {partial}")
+
+        # combined_gaps = list(rule_result.gaps)
+        # for gap in llm_gaps:
+        #     combined_gaps.append(f"LLM semantic gap: {gap}")
+
+        combined_gaps = []
+
+        for gap in rule_result.gaps:
+            if not should_suppress_rule_gap(gap, llm_partial_matches):
+                combined_gaps.append(gap)
+
+        for improvement in llm_positioning_improvements:
+            combined_gaps.append(f"Positioning improvement: {improvement}")
 
         positioning_summary = rule_result.positioning_summary
         if llm_reasoning_summary:
