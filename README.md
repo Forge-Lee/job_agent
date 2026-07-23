@@ -195,9 +195,9 @@ The project now supports an end-to-end job application workflow:
 
 `docker compose run job-agent python -m src.cli analyze --jd-path data/sample_jd.txt --profile-path data/candidate_profile.example.json`
 
-## Sample Output
+## Quick Start Demo
 
-Please check `outputs/sample` directory.
+TBA
 
 ## Streamlit Frontend Usage (Recommended)
 
@@ -287,7 +287,78 @@ An optional LangChain/Pydantic reflection layer checks whether the final answer 
 
 ## Environment Variables
 
-Please formulate your `.env` file according to the `.env.example` template and put it to the same directory as the `.env.example` file.
+Create a `.env` file in the project root based on `.env.example`.
+
+This project supports both mock clients and real LLM / embedding APIs. Most workflows can be tested in mock mode without external API calls. To run real resume parsing, JD parsing, semantic matching, material generation, memory answers, or ReAct reasoning, configure the API variables below.
+
+### Current API configuration design
+
+The current implementation uses an **OpenAI-compatible client interface** for the main LLM calls, including resume parsing, JD parsing, semantic matching, material generation, memory answering, and the ReAct reasoning loop.
+
+Because of this, the environment variable names are currently:
+
+```env
+OPENAI_API_KEY=your_api_key_here
+OPENAI_BASE_URL=your_openai_compatible_base_url_here
+MODEL_NAME=your_model_name_here
+```
+
+These names do not necessarily mean that the backend must be OpenAI. In this project, they can also point to an OpenAI-compatible API endpoint, such as a Gemini-compatible or other OpenAI-compatible gateway, as long as the endpoint supports the chat completion interface used by the client.
+
+For example, a Gemini-compatible setup may still use:
+
+OPENAI_API_KEY=your_gemini_or_gateway_api_key
+OPENAI_BASE_URL=your_openai_compatible_base_url
+MODEL_NAME=gemini-3.5-flash
+
+This naming is currently a compatibility choice rather than a clean provider abstraction.
+
+### Reflection configuration
+
+The reflection step has a separate provider setting because it can use LangChain integrations directly:
+
+REFLECTION_PROVIDER=gemini
+REFLECTION_MODEL_NAME=gemini-3.5-flash
+
+or:
+
+REFLECTION_PROVIDER=openai
+REFLECTION_MODEL_NAME=gpt-4o-mini
+
+### Embedding configuration
+
+If using Chroma-based retrieval with real embeddings, configure the embedding backend consistently:
+
+EMBEDDING_PROVIDER=gemini
+EMBEDDING_MODEL_NAME=gemini-embedding-001
+EMBEDDING_DIM=768
+
+Chroma collections are namespaced by embedding provider, model, and dimension to avoid conflicts between mock embeddings and real embeddings.
+
+Example collection names:
+
+application_memory_mock_64
+application_memory_gemini_gemini_embedding_001_768
+
+### Mock mode
+
+Most commands support mock mode:
+
+--use-mock-llm
+--use-mock-embedding
+
+Mock mode is recommended for testing the workflow, file paths, Streamlit UI, tracker updates, and ReAct traces without consuming API quota.
+
+### Planned cleanup
+
+The current OPENAI_API_KEY and OPENAI_BASE_URL names are used because the main LLM client is implemented through an OpenAI-compatible API interface. A future refactor will make this clearer by introducing provider-neutral variable names such as:
+
+LLM_PROVIDER=gemini
+LLM_API_KEY=...
+LLM_BASE_URL=...
+LLM_MODEL_NAME=...
+
+This will reduce confusion when using non-OpenAI models through OpenAI-compatible endpoints.
 
 ## Current Limitations
 
