@@ -2,8 +2,6 @@
 
 ## Overview
 
-## Overview
-
 AI Job Application Assistant Agent is an end-to-end LLM-powered job application workflow system. It helps candidates parse resumes and job descriptions, evaluate candidate-job fit, generate tailored application materials, track applications, retrieve similar past opportunities, and run multi-step job analysis through a custom ReAct-style agent.
 
 The project is designed not only to generate application text, but also to turn job search into a convenient, structured, traceable, and reusable workflow with persistent application memory, vector retrieval, and agent-based orchestration.
