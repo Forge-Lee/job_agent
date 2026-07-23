@@ -8,8 +8,6 @@ The project is designed not only to generate application text, but also to turn 
 
 ## Key Features
 
-## Key Features
-
 - **Resume-to-profile parsing**
   - Extracts text from PDF and DOCX resumes
   - Uses LLM-based parsing to generate candidate profile JSON
