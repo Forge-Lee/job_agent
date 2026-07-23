@@ -1,5 +1,6 @@
 import datetime
 import re
+import hashlib
 
 from src.agents.jd_parser import JDParser
 from src.agents.profile_matcher import ProfileMatcher
@@ -9,11 +10,61 @@ from src.tools.application_tracker import ApplicationTracker
 from src.tools.file_loader import *
 from src.tools.material_validator import MaterialValidator
 
-def slugify_app_id(company: str, role: str) -> str:
-    raw = f"{company} {role}".lower().strip()
-    slug = re.sub(r"[^a-z0-9]+", "-", raw)
-    slug = slug.strip("-")
-    return slug or "unknown-application"
+# def slugify_app_id(company: str, role: str) -> str:
+#     raw = f"{company} {role}".lower().strip()
+#     slug = re.sub(r"[^a-z0-9]+", "-", raw)
+#     slug = slug.strip("-")
+#     return slug or "unknown-application"
+
+def looks_like_bad_field(value: str, max_words: int = 12) -> bool:
+    if not value:
+        return True
+
+    value = value.strip()
+
+    if value.lower() in {"not specified", "unknown", "n/a", "none"}:
+        return True
+
+    if len(value.split()) > max_words:
+        return True
+
+    if len(value) > 80:
+        return True
+
+    return False
+
+
+def slugify_app_id(company: str, role: str, max_len: int = 80) -> str:
+    company = (company or "").strip()
+    role = (role or "").strip()
+
+    if looks_like_bad_field(company):
+        company = "unknown-company"
+
+    if looks_like_bad_field(role):
+        role = "unknown-role"
+
+    raw = f"{company} {role}".lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", raw).strip("-")
+
+    if not slug:
+        slug = "unknown-application"
+
+    digest = hashlib.md5(raw.encode("utf-8")).hexdigest()[:8]
+
+    if len(slug) > max_len:
+        slug = slug[:max_len].strip("-")
+
+    return f"{slug}-{digest}"
+
+# def clean_parsed_jd_fields(parsed_jd):
+#     if looks_like_bad_field(parsed_jd.company):
+#         parsed_jd.company = infer_company_from_text_or_default(...)
+
+#     if looks_like_bad_field(parsed_jd.role):
+#         parsed_jd.role = infer_role_from_text_or_default(...)
+
+#     return parsed_jd
 
 def clean_label_prefix(value: str) -> str:
     prefixes = ["company:", "role:", "position:", "job title:", "title:"]

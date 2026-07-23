@@ -28,10 +28,11 @@ Guidelines:
 - Put broader areas such as computer vision, NLP, robotics, EDA, healthcare, fintech, or AI agents in domains.
 - Keep each list item concise.
 - Do not duplicate the same concept across too many fields unless the JD clearly supports it.
-- For company, return only the company name.
-- For role, return only the job title.
+- For company, return only the company name. If the JD contains "About X:", use X as the company.
+- For role, return only the job title. If the JD contains "As a <role> on this team", use <role>.
 - Do not include labels such as "Company:", "Role:", "Position:", or "Job Title:" in any extracted field.
 - If the role is not clearly stated, use "not specified" rather than copying another field.
+- Never use a full sentence, paragraph, company description, or responsibility sentence as the role.
 
 Job description:
 {job_description}
