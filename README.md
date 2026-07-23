@@ -195,9 +195,33 @@ The project now supports an end-to-end job application workflow:
 
 `docker compose run job-agent python -m src.cli analyze --jd-path data/sample_jd.txt --profile-path data/candidate_profile.example.json`
 
-## Quick Start Demo
+## Demo
+
+### Streamlit End-to-End Demo
+
+The Streamlit app supports an end-to-end job application workflow: resume parsing, JD analysis, application tracking, memory retrieval, and ReAct-based multi-step reasoning.
 
 TBA
+
+### Key Screenshots
+
+#### Resume-to-Profile Parsing
+
+![Resume Parsing](docs/assets/01_resume_parsing.png)
+
+![Resume Parsing](docs/assets/02_resume_parsing.png)
+
+#### Job Analysis with Hybrid Matching
+
+<!-- ![Job Analysis](docs/assets/job_analysis.png) -->
+
+#### Application Memory Retrieval
+
+<!-- ![Application Memory](docs/assets/application_memory.png) -->
+
+#### ReAct Agent Tool Trace
+
+<!-- ![ReAct Agent](docs/assets/react_agent_trace.png) -->
 
 ## Streamlit Frontend Usage (Recommended)
 
