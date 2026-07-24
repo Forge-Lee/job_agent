@@ -55,6 +55,7 @@ class ReActAgent:
                     "error": str(e),
                     "raw_response": response,
                     "observations": observations,
+                    "completed_actions": completed_actions,
                 }
 
             if "final_answer" in decision:

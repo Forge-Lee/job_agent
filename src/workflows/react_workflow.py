@@ -50,9 +50,9 @@ def run_react_workflow(
         )
         reflection_result = reflection_agent.reflect(
             user_request=user_request,
-            final_answer=react_result["final_answer"],
-            observations=react_result["observations"],
-            completed_actions=react_result["completed_actions"],
+            final_answer=react_result.get("final_answer", ""),
+            observations=react_result.get("observations", []),
+            completed_actions=react_result.get("completed_actions", []),
         )
 
         react_result["reflection"] = reflection_result.model_dump()

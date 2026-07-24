@@ -213,11 +213,11 @@ TBA
 
 #### Job Analysis with Hybrid Matching
 
-<!-- ![Job Analysis](docs/assets/job_analysis.png) -->
+![Job Analysis](docs/assets/job_analysis.png)
 
 #### Application Memory Retrieval
 
-<!-- ![Application Memory](docs/assets/application_memory.png) -->
+![Application Memory](docs/assets/application_memory.png)
 
 #### ReAct Agent Tool Trace
 
