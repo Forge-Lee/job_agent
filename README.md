@@ -221,7 +221,7 @@ TBA
 
 #### ReAct Agent Tool Trace
 
-<!-- ![ReAct Agent](docs/assets/react_agent_trace.png) -->
+![ReAct Agent](docs/assets/react_agent_trace.png)
 
 ## Streamlit Frontend Usage (Recommended)
 
